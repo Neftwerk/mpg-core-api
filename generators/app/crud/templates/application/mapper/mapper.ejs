@@ -1,0 +1,34 @@
+import { Injectable } from '@nestjs/common';
+
+import { ICreateDto } from '@/module/<%= kebabCase(name) %>/application/dto/create-<%= kebabCase(name) %>.dto.interface';
+import { ResponseDto } from '@/module/<%= kebabCase(name) %>/application/dto/<%= kebabCase(name) %>-response.dto';
+import { IUpdateDto } from '@/module/<%= kebabCase(name) %>/application/dto/update-<%= kebabCase(name) %>.dto.interface';
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+
+@Injectable()
+export class Mapper {
+  private mapDtoTo<%= pascalCase(name) %>(<%= camelCase(name) %>Dto: IUpdateDto): <%= pascalCase(name) %> {
+    const <%= camelCase(name) %> = new <%= pascalCase(name) %>();
+    <%= camelCase(name) %>.name = <%= camelCase(name) %>Dto.name;
+    return <%= camelCase(name) %>;
+  }
+
+  fromCreate<%= pascalCase(name) %>DtoTo<%= pascalCase(name) %>(<%= camelCase(name) %>Dto: ICreateDto): <%= pascalCase(name) %> {
+    return this.mapDtoTo<%= pascalCase(name) %>(<%= camelCase(name) %>Dto);
+  }
+
+  fromUpdate<%= pascalCase(name) %>DtoTo<%= pascalCase(name) %>(<%= camelCase(name) %>Dto: IUpdateDto): <%= pascalCase(name) %> {
+    return this.mapDtoTo<%= pascalCase(name) %>(<%= camelCase(name) %>Dto);
+  }
+
+  from<%= pascalCase(name) %>To<%= pascalCase(name) %>ResponseDto(<%= camelCase(name) %>: <%= pascalCase(name) %>): ResponseDto {
+    const <%= camelCase(name) %>ResponseDto = new ResponseDto();
+    <%= camelCase(name) %>ResponseDto.id = <%= camelCase(name) %>.id;
+    <%= camelCase(name) %>ResponseDto.uuid = <%= camelCase(name) %>.uuid;
+    <%= camelCase(name) %>ResponseDto.name = <%= camelCase(name) %>.name;
+    <%= camelCase(name) %>ResponseDto.createdAt = <%= camelCase(name) %>.createdAt;
+    <%= camelCase(name) %>ResponseDto.updatedAt = <%= camelCase(name) %>.updatedAt;
+    <%= camelCase(name) %>ResponseDto.deletedAt = <%= camelCase(name) %>.deletedAt;
+    return <%= camelCase(name) %>ResponseDto;
+  }
+}

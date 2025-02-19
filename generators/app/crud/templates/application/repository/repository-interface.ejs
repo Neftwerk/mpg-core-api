@@ -1,0 +1,20 @@
+import { ICollection } from '@common/base/application/dto/collection.interface';
+import { IGetAllOptions } from '@common/base/application/interface/get-all-options.interface';
+
+import { <%= pascalCase(name) %>Relation } from '@/module/<%= kebabCase(name) %>/application/enum/<%= kebabCase(name) %>-relation.enum';
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+
+export const <%= constantCase(name) %>_REPOSITORY_KEY = '<%= kebabCase(name) %>_repository';
+
+export interface IRepository {
+  getAll(options?: IGetAllOptions<<%= pascalCase(name) %>, <%= pascalCase(name) %>Relation[]>): Promise<ICollection<<%= pascalCase(name) %>>>;
+  getOneByIdOrFail(id: number): Promise<<%= pascalCase(name) %>>;
+  getOneById(id: number, relations?: <%= pascalCase(name) %>Relation[]): Promise<<%= pascalCase(name) %>>;
+  saveOne(<%= camelCase(name) %>: <%= pascalCase(name) %>): Promise<<%= pascalCase(name) %>>;
+  updateOneOrFail(
+    id: number,
+    updates: Partial<Omit<<%= pascalCase(name) %>, 'id'>>,
+    relations?: string[],
+  ): Promise<<%= pascalCase(name) %>>;
+  deleteOneOrFail(id: number): Promise<void>;
+}

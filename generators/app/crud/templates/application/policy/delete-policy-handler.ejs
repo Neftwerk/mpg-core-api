@@ -1,0 +1,57 @@
+import { Inject, ForbiddenException, Injectable, Type } from '@nestjs/common';
+import { Request } from 'express';
+
+import { REQUEST_USER_KEY } from '@iam/authentication/authentication.constants';
+import { AuthorizationService } from '@iam/authorization/application/service/authorization.service';
+import { AppAction } from '@iam/authorization/domain/app-action.enum';
+import { IPolicyHandler } from '@iam/authorization/infrastructure/policy/handler/policy-handler.interface';
+import { PolicyHandlerStorage } from '@iam/authorization/infrastructure/policy/storage/policies-handler.storage';
+import { User } from '@iam/user/domain/user.entity';
+
+import {
+  <%= constantCase(name) %>_REPOSITORY_KEY,
+  I<%= pascalCase(name) %>Repository,
+} from '@/module/<%= kebabCase(name) %>/application/repository/<%= kebabCase(name) %>.repository.interface';
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+
+@Injectable()
+export class DeletePolicyHandler implements IPolicyHandler {
+  private readonly action = AppAction.Delete;
+
+  constructor(
+    private readonly policyHandlerStorage: PolicyHandlerStorage,
+    private readonly authorizationService: AuthorizationService,
+    @Inject(<%= constantCase(name) %>_REPOSITORY_KEY)
+    private readonly <%= camelCase(name) %>Repository: I<%= pascalCase(name) %>Repository,
+  ) {
+    this.policyHandlerStorage.add(DeletePolicyHandler, this);
+  }
+
+  async handle(request: Request): Promise<void> {
+    const currentUser = this.getCurrentUser(request);
+    const subjectOrSubjectCls = await this.getSubject(request);
+
+    const isAllowed = this.authorizationService.isAllowed(
+      currentUser,
+      this.action,
+      subjectOrSubjectCls,
+    );
+
+    if (!isAllowed) {
+      throw new ForbiddenException(
+        `You are not allowed to ${this.action.toUpperCase()} this resource`,
+      );
+    }
+  }
+
+  private getCurrentUser(request: Request): User {
+    return request[REQUEST_USER_KEY];
+  }
+
+  private async getSubject(request: Request): Promise<<%= pascalCase(name) %> | Type<<%= pascalCase(name) %>>> {
+    const searchParam = request.params['id'];
+    const subjectId = searchParam ? parseInt(searchParam) : undefined;
+    const subject = await this.<%= camelCase(name) %>Repository.getOneById(subjectId);
+    return subject ?? <%= pascalCase(name) %>;
+  }
+}

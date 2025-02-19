@@ -1,0 +1,11 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
+
+import { ICreateDto } from '@/module/<%= kebabCase(name) %>/application/dto/create-<%= kebabCase(name) %>.dto.interface';
+
+export class CreateDto implements ICreateDto {
+  @ApiPropertyOptional({ type: String, example: 'John' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}

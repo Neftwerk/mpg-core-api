@@ -1,0 +1,15 @@
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+
+describe('<%= pascalCase(name) %>', () => {
+  let <%= camelCase(name) %>: <%= pascalCase(name) %>;
+
+  beforeEach(() => {
+    <%= camelCase(name) %> = new <%= pascalCase(name) %>();
+  });
+
+  describe('<%= pascalCase(name) %> Creation', () => {
+    it('should have an undefined name upon creation', async () => {
+      expect(<%= camelCase(name) %>.name).toStrictEqual(undefined);
+    });
+  });
+});

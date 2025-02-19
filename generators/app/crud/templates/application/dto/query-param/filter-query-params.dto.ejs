@@ -1,0 +1,9 @@
+import { PartialType } from '@nestjs/swagger';
+
+import {ResponseDto } from '@/module/<%= kebabCase(name) %>/application/dto/<%= kebabCase(name) %>-response.dto';
+
+import { FilterOptions } from '@common/base/application/interface/get-all-options.interface';
+
+export class <%= pascalCase(name) %>FilterQueryParamsDto
+  extends PartialType(ResponseDto)
+  implements FilterOptions<ResponseDto> {}

@@ -1,0 +1,6 @@
+entity: Genre
+items:
+  romance:
+    name: 'Romance'
+  genre{2..23}:
+    name: '{{string.alpha}}'

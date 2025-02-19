@@ -1,0 +1,15 @@
+import { AppAction } from '@iam/authorization/domain/app-action.enum';
+import { IPermissionsDefinition } from '@iam/authorization/infrastructure/policy/type/permissions-definition.interface';
+
+import { <%= pascalCase(name) %> } from '@/module/<%= name %>/domain/<%= name %>.entity';
+
+export const Permissions: IPermissionsDefinition = {
+  regular(_, { can }) {
+    can(AppAction.Read, <%= pascalCase(name) %>);
+    can(AppAction.Update, <%= pascalCase(name) %>);
+  },
+  admin(_, { can }) {
+    can(AppAction.Manage, <%= pascalCase(name) %>);
+    can(AppAction.Update, <%= pascalCase(name) %>);
+  },
+};

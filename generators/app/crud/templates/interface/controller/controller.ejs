@@ -1,0 +1,131 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+
+import { OneRelationResponse } from '@common/base/application/dto/one-relation-response.interface.dto';
+import { ManySerializedResponseDto } from '@common/base/application/dto/many-serialized-response.dto';
+import { OneSerializedResponseDto } from '@common/base/application/dto/one-serialized-response.dto';
+import { PageQueryParamsDto } from '@common/base/application/dto/page-query-params.dto';
+import { GetOneSwaggerDecorator } from '@common/base/application/interface/getOneSwaggerDecorator';
+import { SortOptions } from '@common/base/application/interface/get-all-options.interface';
+import { GetAllSwaggerDecorator } from '@common/base/application/interface/getAllSwaggerDecorator';
+import { ControllerEntity } from '@common/base/application/interface/decorators/endpoint-entity.decorator';
+
+import { AppAction } from '@iam/authorization/domain/app-action.enum';
+import { Policy } from '@iam/authorization/infrastructure/policy/decorator/policy.decorator';
+import { PolicyGuard } from '@iam/authorization/infrastructure/policy/guard/policy.guard';
+
+import { <%= pascalCase(name) %>Relation } from '@/module/<%= kebabCase(name) %>/application/enum/<%= kebabCase(name) %>-relation.enum';
+import { CreateDto } from '@/module/<%= kebabCase(name) %>/application/dto/create-<%= kebabCase(name) %>.dto';
+import { <%= pascalCase(name) %>FieldsQueryParamsDto } from '@/module/<%= kebabCase(name) %>/application/dto/query-param/<%= kebabCase(name) %>-fields-query-params.dto';
+import { <%= pascalCase(name) %>FilterQueryParamsDto } from '@/module/<%= kebabCase(name) %>/application/dto/query-param/<%= kebabCase(name) %>-filter-query-params.dto';
+import { IncludeQueryParamsDto } from '@/module/<%= kebabCase(name) %>/application/dto/<%= kebabCase(name) %>-include-query-params.dto';
+import { ResponseDto } from '@/module/<%= kebabCase(name) %>/application/dto/<%= kebabCase(name) %>-response.dto';
+import { UpdateDto } from '@/module/<%= kebabCase(name) %>/application/dto/update-<%= kebabCase(name) %>.dto';
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+import { Service } from '@/module/<%= kebabCase(name) %>/application/service/<%= kebabCase(name) %>.service';
+import { <%= constantCase(name) %>_ENTITY_NAME } from '@/module/<%= name %>/domain/<%= name %>.name';
+
+@Controller('<%= kebabCase(name) %>')
+@ControllerEntity(<%= constantCase(name) %>_ENTITY_NAME)
+@UseGuards(PolicyGuard)
+@ApiTags('<%= kebabCase(name) %>')
+export class <%= pascalCase(name) %>Controller {
+  constructor(private readonly service: Service) {}
+
+  @Get()
+  @Policy(AppAction.Read, <%= pascalCase(name) %>)
+  @GetAllSwaggerDecorator(
+    ResponseDto,
+    <%= pascalCase(name) %>FilterQueryParamsDto,
+    <%= pascalCase(name) %>FieldsQueryParamsDto,
+  )
+  getAll(
+    @Query('page') page: PageQueryParamsDto,
+    @Query('filter') filter: <%= pascalCase(name) %>FilterQueryParamsDto,
+    @Query('fields') fields: <%= pascalCase(name) %>FieldsQueryParamsDto,
+    @Query('sort') sort: SortOptions<ResponseDto>,
+    @Query('include') include: IncludeQueryParamsDto,
+  ): Promise<ManySerializedResponseDto<ResponseDto>> {
+    return this.service.getAll({
+      page,
+      filter,
+      sort,
+      fields: fields.target,
+      include: include.fields,
+    });
+  }
+
+  @Get(':id')
+  @Policy(AppAction.Read, <%= pascalCase(name) %>)
+  @ApiParam({ name: 'id', type: Number })
+  @ApiOperation({ summary: 'Get one <%= pascalCase(name) %> by id or throw not found' })
+  @GetOneSwaggerDecorator(ResponseDto)
+  getOneByIdOrFail(@Param('id') id: number): Promise<OneSerializedResponseDto<ResponseDto>> {
+    return this.service.getOneByIdOrFail(id);
+  }
+
+  @Post()
+  @Policy(AppAction.Create, <%= pascalCase(name) %>)
+  @ApiOperation({ summary: 'Create new <%= pascalCase(name) %>' })
+  @ApiBody({ type: CreateDto })
+  @GetOneSwaggerDecorator(ResponseDto)
+  saveOne(
+    @Body() createDto: CreateDto,
+  ): Promise<OneSerializedResponseDto<ResponseDto>> {
+    return this.service.saveOne(createDto);
+  }
+
+  @Patch(':id')
+  @Policy(AppAction.Update, <%= pascalCase(name) %>)
+  @ApiParam({ name: 'id', type: Number })
+  @ApiOperation({
+    summary: 'Update one <%= pascalCase(name) %> by id or throw not found',
+  })
+  @ApiBody({ type: UpdateDto })
+  @GetOneSwaggerDecorator(ResponseDto)
+  updateOneOrFail(
+    @Param('id') id: number,
+    @Body() updateDto: UpdateDto,
+  ): Promise<OneSerializedResponseDto<ResponseDto>> {
+    return this.service.updateOneOrFail(
+      id,
+      updateDto,
+    );
+  }
+
+  @Delete(':id')
+  @Policy(AppAction.Delete, <%= pascalCase(name) %>)
+  @ApiParam({ name: 'id', type: Number })
+  @ApiOperation({
+    summary: 'Delete one <%= pascalCase(name) %> by id or throw not found',
+  })
+  @ApiOkResponse({ status: 200 })
+  deleteOneOrFail(@Param('id') id: number) {
+    return this.service.deleteOneOrFail(id);
+  }
+
+  @Get('/:id/relationships/:name')
+  @Policy(AppAction.Read, <%= pascalCase(name) %>)
+  async getOneRelation(
+    @Param('id') id: number,
+    @Param('name') relationName: <%= pascalCase(name) %>Relation | undefined,
+  ): Promise<OneRelationResponse> {
+    return this.service.getOneRelation(id, relationName);
+  }
+}

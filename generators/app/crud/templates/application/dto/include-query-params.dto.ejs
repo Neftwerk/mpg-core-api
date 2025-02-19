@@ -1,0 +1,20 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsIn, IsOptional } from 'class-validator';
+
+import { fromCommaSeparatedToArray } from '@common/base/application/mapper/base.mapper';
+
+import { <%= pascalCase(name) %>Relation } from '@/module/<%= name %>/application/enum/<%= name %>-relation.enum';
+
+export class IncludeQueryParamsDto {
+  @ApiPropertyOptional({
+    enum: <%= pascalCase(name) %>Relation,
+    isArray: true,
+  })
+  @IsIn(Object.values(<%= pascalCase(name) %>Relation), {
+    each: true,
+  })
+  @Transform((params) => fromCommaSeparatedToArray(params.value))
+  @IsOptional()
+  fields?: <%= pascalCase(name) %>Relation[];
+}

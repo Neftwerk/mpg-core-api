@@ -1,0 +1,5 @@
+import { ICreateDto } from '@/module/<%= kebabCase(name) %>/application/dto/create-<%= kebabCase(name) %>.dto.interface';
+
+export interface IUpdateDto extends Partial<ICreateDto> {
+  name?: string;
+}

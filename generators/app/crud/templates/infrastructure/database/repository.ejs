@@ -1,0 +1,109 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { ICollection } from '@common/base/application/dto/collection.interface';
+import { IGetAllOptions } from '@common/base/application/interface/get-all-options.interface';
+
+import { <%= pascalCase(name) %>Relation } from '@/module/<%= kebabCase(name) %>/application/enum/<%= kebabCase(name) %>-relation.enum';
+import { IRepository } from '@/module/<%= kebabCase(name) %>/application/repository/<%= kebabCase(name) %>.repository.interface';
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+import { <%= pascalCase(name) %>Schema } from '@/module/<%= kebabCase(name) %>/infrastructure/database/<%= kebabCase(name) %>.schema';
+import { <%= pascalCase(name) %>NotFoundException } from '@/module/<%= kebabCase(name) %>/infrastructure/database/exception/<%= kebabCase(name) %>-not-found.exception';
+
+export class MySqlRepository implements IRepository {
+  constructor(
+    @InjectRepository(<%= pascalCase(name) %>Schema)
+    private readonly repository: Repository<<%= pascalCase(name) %>>,
+  ) {}
+
+  async getAll(
+    options?: IGetAllOptions<<%= pascalCase(name) %>, Partial<<%= pascalCase(name) %>Relation[]>>,
+  ): Promise<ICollection<<%= pascalCase(name) %>>> {
+    const { filter, page, sort, fields, include } = options || {};
+
+    const [items, itemCount] = await this.repository.findAndCount({
+      where: filter,
+      order: sort,
+      select: fields,
+      take: page.size,
+      skip: page.offset,
+      relations: include,
+    });
+
+    return {
+      data: items,
+      pageNumber: page.number,
+      pageSize: page.size,
+      pageCount: Math.ceil(itemCount / page.size),
+      itemCount,
+    };
+  }
+
+  async getOneByIdOrFail(
+    id: number,
+    relations: <%= pascalCase(name) %>Relation[] = []
+  ): Promise<<%= pascalCase(name) %>> {
+    const <%= pascalCase(name) %> = await this.repository.findOne({
+      where: { id },
+      relations,
+    });
+
+    if (!<%= pascalCase(name) %>) {
+      throw new <%= pascalCase(name) %>NotFoundException({
+        message: `<%= pascalCase(name) %> with ID ${id} not found`,
+      });
+    }
+
+    return <%= pascalCase(name) %>;
+  }
+
+  async getOneById(id: number, relations: <%= pascalCase(name) %>Relation[] = []): Promise<<%= pascalCase(name) %>> {
+    return this.repository.findOne({
+      where: { id },
+      relations,
+    });
+  }
+
+  async saveOne(
+    <%= camelCase(name) %>: <%= pascalCase(name) %>,
+    relations: <%= pascalCase(name) %>Relation[] = [] %>
+  ): Promise<<%= pascalCase(name) %>> {
+    const saved<%= pascalCase(name) %> = await this.repository.save(<%= camelCase(name) %>);
+    return this.repository.findOne({ where: { id: saved<%= pascalCase(name) %>.id }, relations });
+  }
+
+  async updateOneOrFail(
+    id: number,
+    updates: Partial<Omit<<%= pascalCase(name) %>, 'id'>>,
+    relations: <%= pascalCase(name) %>Relation[] = [],
+  ): Promise<<%= pascalCase(name) %>> {
+    const <%= camelCase(name) %>ToUpdate = await this.repository.preload({
+      ...updates,
+      id,
+    });
+
+    if (!<%= camelCase(name) %>ToUpdate) {
+      throw new <%= pascalCase(name) %>NotFoundException({
+        message: `<%= pascalCase(name) %> with ID ${id} not found`,
+      });
+    }
+
+    const saved<%= pascalCase(name) %> = await this.repository.save(<%= camelCase(name) %>ToUpdate);
+
+    return this.repository.findOne({ where: { id: saved<%= pascalCase(name) %>.id }, relations });
+  }
+
+  async deleteOneOrFail(id: number): Promise<void> {
+    const <%= camelCase(name) %>ToDelete = await this.repository.findOne({
+      where: { id },
+    });
+
+    if (!<%= camelCase(name) %>ToDelete) {
+      throw new <%= pascalCase(name) %>NotFoundException({
+        message: `<%= pascalCase(name) %>Module with ID ${id} not found`,
+      });
+    }
+
+    await this.repository.softDelete({ id });
+  }
+}

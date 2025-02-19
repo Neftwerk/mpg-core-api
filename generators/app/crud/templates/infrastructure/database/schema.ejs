@@ -1,0 +1,16 @@
+import { EntitySchema } from 'typeorm';
+
+import { withBaseSchemaColumns } from '@common/base/infrastructure/database/base.schema';
+
+import { <%= pascalCase(name) %> } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.entity';
+
+export const <%= pascalCase(name) %>Schema = new EntitySchema<<%= pascalCase(name) %>>({
+  name: '<%= pascalCase(name) %>',
+  target: <%= pascalCase(name) %>,
+  tableName: '<%= kebabCase(name) %>',
+  columns: withBaseSchemaColumns({
+    name: {
+      type: String,
+    },
+  }),
+});

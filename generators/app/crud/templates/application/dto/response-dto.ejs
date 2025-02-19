@@ -1,0 +1,35 @@
+import { IsInt, IsString, IsDate, IsOptional } from 'class-validator';
+import { DtoProperty } from '@common/base/application/dto/base.dto';
+
+import { EntityName } from '@common/decorators/entity-name.decorator';
+
+import { <%= constantCase(name) %>_ENTITY_NAME } from '@/module/<%= name %>/domain/<%= name %>.name';
+
+@EntityName(<%= constantCase(name) %>_ENTITY_NAME)
+export class ResponseDto {
+  @DtoProperty
+  @IsInt()
+  id: number;
+
+  @DtoProperty
+  @IsString()
+  @IsOptional()
+  uuid?: string;
+
+  @DtoProperty
+  @IsString()
+  name: string;
+
+  @DtoProperty
+  @IsDate()
+  createdAt: string;
+
+  @DtoProperty
+  @IsDate()
+  updatedAt: string;
+
+  @DtoProperty
+  @IsDate()
+  @IsOptional()
+  deletedAt?: string;
+}

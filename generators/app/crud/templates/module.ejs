@@ -1,0 +1,40 @@
+import { Module, Provider } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { AuthorizationModule } from '@iam/authorization/authorization.module';
+
+import { ResponseAdapter  } from '@/module/<%= kebabCase(name) %>/application/adapter/<%= kebabCase(name) %>-response.adapter';
+import { Mapper } from '@/module/<%= kebabCase(name) %>/application/mapper/<%= kebabCase(name) %>.mapper';
+import { <%= constantCase(name) %>_REPOSITORY_KEY } from '@/module/<%= kebabCase(name) %>/application/repository/<%= kebabCase(name) %>.repository.interface';
+import { Service } from '@/module/<%= kebabCase(name) %>/application/service/<%= kebabCase(name) %>.service';
+import { Permissions } from '@/module/<%= kebabCase(name) %>/domain/<%= kebabCase(name) %>.permission';
+import { MySqlRepository } from '@/module/<%= kebabCase(name) %>/infrastructure/database/<%= kebabCase(name) %>.mysql.repository';
+import { <%= pascalCase(name) %>Schema } from '@/module/<%= kebabCase(name) %>/infrastructure/database/<%= kebabCase(name) %>.schema';
+import { <%= pascalCase(name) %>Controller  as Controller} from '@/module/<%= kebabCase(name) %>/interface/<%= kebabCase(name) %>.controller';
+
+const RepositoryProvider: Provider = {
+  provide: <%= constantCase(name) %>_REPOSITORY_KEY,
+  useClass: MySqlRepository,
+};
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([<%= pascalCase(name) %>Schema]),
+    AuthorizationModule.forFeature({
+      permissions: Permissions,
+    }),
+  ],
+  providers: [
+    Service,
+    Mapper,
+    ResponseAdapter,
+    RepositoryProvider,
+  ],
+  controllers: [Controller],
+  exports: [
+    Service,
+    Mapper,
+    RepositoryProvider,
+  ],
+})
+export class <%= pascalCase(name) %>Module {}
