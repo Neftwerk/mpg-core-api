@@ -347,7 +347,7 @@ describe('Authentication Module', () => {
 
       it('Should send an UnconfirmedUser error when user is not confirmed', async () => {
         const error = new UnauthorizedException({
-          message: 'User is not confirmed',
+          message: 'Email not verified',
         });
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
