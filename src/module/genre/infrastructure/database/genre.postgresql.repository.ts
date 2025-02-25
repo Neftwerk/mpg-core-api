@@ -9,7 +9,7 @@ import { Genre } from '@genre/domain/genre.entity';
 import { GenreNotFoundException } from '@genre/infrastructure/database/exception/genre-not-found.exception';
 import { GenreSchema } from '@genre/infrastructure/database/genre.schema';
 
-export class GenreMysqlRepository implements IGenreRepository {
+export class GenrePostgresqlRepository implements IGenreRepository {
   constructor(
     @InjectRepository(GenreSchema)
     private readonly repository: Repository<Genre>,
