@@ -5,7 +5,7 @@ import {
 } from '@casl/ability';
 import { Inject, Injectable } from '@nestjs/common';
 
-import { Admin } from '@iam/admin/domain/admin.entity';
+import { IAdmin } from '@iam/authorization/application/interfaces/admin-user.interface';
 import { PERMISSIONS_FOR_FEATURE_KEY } from '@iam/authorization/authorization.constants';
 import { AppAbility } from '@iam/authorization/infrastructure/casl/type/app-ability.type';
 import { AppSubjects } from '@iam/authorization/infrastructure/casl/type/app-subjects.type';
@@ -19,7 +19,7 @@ export class CaslAbilityFactory {
     private readonly permissions: IPermissionsDefinition,
   ) {}
 
-  createForUser(user: User | Admin): AppAbility {
+  createForUser(user: User | IAdmin): AppAbility {
     const builder = new AbilityBuilder<AppAbility>(createMongoAbility);
 
     user.roles.forEach((role) => {
