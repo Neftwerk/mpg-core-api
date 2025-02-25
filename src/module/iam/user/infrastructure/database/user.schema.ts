@@ -25,5 +25,15 @@ export const UserSchema = new EntitySchema<User>({
       type: Boolean,
       default: false,
     },
+    name: {
+      type: String,
+    },
+    surname: {
+      type: String,
+    },
+    biography: {
+      type: String,
+      nullable: true,
+    },
   }),
 });
