@@ -30,7 +30,7 @@ import {
   IDENTITY_PROVIDER_SERVICE_KEY,
   IIdentityProviderService,
 } from '@iam/authentication/application/service/identity-provider.service.interface';
-import { AUTHENTICATION_NAME } from '@iam/authentication/domain/authtentication.name';
+import { AUTHENTICATION_NAME } from '@iam/authentication/domain/authentication.name';
 import { AppRole } from '@iam/authorization/domain/app-role.enum';
 import { UserResponseDto } from '@iam/user/application/dto/user-response.dto';
 import { UserMapper } from '@iam/user/application/mapper/user.mapper';
@@ -39,7 +39,7 @@ import {
   USER_REPOSITORY_KEY,
 } from '@iam/user/application/repository/user.repository.interface';
 import { User } from '@iam/user/domain/user.entity';
-import { USER_ENTITY_NAME } from '@iam/user/domain/user.name';
+import { UsernameNotFoundException } from '@iam/user/infrastructure/database/exception/username-not-found.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -60,7 +60,9 @@ export class AuthenticationService {
   ): Promise<OneSerializedResponseDto<UserResponseDto>> {
     const { username, password } = signUpDto;
 
-    const existingUser = await this.userRepository.getOneByUsername(username);
+    const existingUser = await this.userRepository.getOneByFilter({
+      username,
+    });
 
     if (!existingUser) {
       return this.signUpAndSave(username, password);
@@ -74,6 +76,190 @@ export class AuthenticationService {
       message: USER_ALREADY_SIGNED_UP_ERROR,
       pointer: '/user/externalId',
     });
+  }
+
+  private async signUpAndSave(
+    email: string,
+    password: string,
+    userId?: number,
+  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
+    let userToSaveId = userId;
+
+    if (!userToSaveId) {
+      userToSaveId = (
+        await this.userRepository.saveOne({
+          username: email,
+          roles: [AppRole.Regular],
+        } as User)
+      ).id;
+    }
+
+    const { externalId } = await this.identityProviderService.signUp(
+      email,
+      password,
+    );
+
+    const user = await this.userRepository.updateOneOrFail(userToSaveId, {
+      externalId,
+    });
+
+    return this.authenticationResponseAdapter.oneEntityResponse<UserResponseDto>(
+      this.userMapper.fromUserToUserResponseDto(user),
+    );
+  }
+
+  async handleSignIn(
+    signInDto: ISignInDto,
+  ): Promise<OneSerializedResponseDto<ISignInResponse>> {
+    const { username, password } = signInDto;
+
+    const existingUser = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const response = await this.identityProviderService.signIn(
+      existingUser.username,
+      password,
+    );
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISignInResponse>(
+      AUTHENTICATION_NAME,
+      response,
+    );
+  }
+
+  async handleConfirmUser(
+    confirmUserDto: IConfirmUserDto,
+  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
+    const { username, code } = confirmUserDto;
+
+    const userFromRepository = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!userFromRepository) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const { externalId, isVerified, id } = userFromRepository;
+
+    if (isVerified) {
+      throw new UserAlreadyConfirmed({
+        message: USER_ALREADY_CONFIRMED_ERROR,
+        pointer: '/user/isVerified',
+      });
+    }
+
+    const confirmUserResponse = await this.identityProviderService.confirmUser(
+      externalId,
+      code,
+    );
+
+    await this.userRepository.updateOneOrFail(id, {
+      isVerified: true,
+    });
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
+      AUTHENTICATION_NAME,
+      confirmUserResponse,
+    );
+  }
+
+  async handleForgotPassword(
+    forgotPasswordDto: IForgotPasswordDto,
+  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
+    const { username } = forgotPasswordDto;
+    const existingUser = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const response = await this.identityProviderService.forgotPassword(
+      username,
+      existingUser.externalId,
+    );
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
+      AUTHENTICATION_NAME,
+      response,
+    );
+  }
+
+  async handleConfirmPassword(
+    confirmPasswordDto: IConfirmPasswordDto,
+  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
+    const { username, newPassword, code } = confirmPasswordDto;
+    const existingUser = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const response = await this.identityProviderService.confirmPassword(
+      existingUser.externalId,
+      newPassword,
+      code,
+    );
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
+      AUTHENTICATION_NAME,
+      response,
+    );
+  }
+
+  async handleResendConfirmationCode(
+    resendConfirmationCodeDto: IResendConfirmationCodeDto,
+  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
+    const { username } = resendConfirmationCodeDto;
+    const existingUser = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const response = await this.identityProviderService.resendConfirmationCode(
+      existingUser.externalId,
+    );
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
+      AUTHENTICATION_NAME,
+      response,
+    );
+  }
+
+  async handleRefreshSession(
+    refreshSessionDto: IRefreshSessionDto,
+  ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
+    const { refreshToken } = refreshSessionDto;
+
+    const response =
+      await this.identityProviderService.refreshSession(refreshToken);
+
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<IRefreshSessionResponse>(
+      AUTHENTICATION_NAME,
+      response,
+    );
   }
 
   async handleAdminSignUp(
@@ -93,34 +279,6 @@ export class AuthenticationService {
         "Sign-up disabled: 'user' table is not empty",
       );
     }
-  }
-
-  private async signUpAndSave(
-    username: string,
-    password: string,
-    userId?: number,
-  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
-    let userToSaveId = userId;
-
-    if (!userToSaveId) {
-      userToSaveId = (
-        await this.userRepository.saveOne(new User(username, [AppRole.Regular]))
-      ).id;
-    }
-
-    const { externalId } = await this.identityProviderService.signUp(
-      username,
-      password,
-    );
-
-    const user = await this.userRepository.updateOneOrFail(userToSaveId, {
-      externalId,
-    });
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<UserResponseDto>(
-      USER_ENTITY_NAME,
-      this.userMapper.fromUserToUserResponseDto(user),
-    );
   }
 
   private async signUpAdminAndSave(
@@ -151,24 +309,6 @@ export class AuthenticationService {
     );
   }
 
-  async handleSignIn(
-    signInDto: ISignInDto,
-  ): Promise<OneSerializedResponseDto<ISignInResponse>> {
-    const { username, password } = signInDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    const response = await this.identityProviderService.signIn(
-      existingUser.username,
-      password,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISignInResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
   async handleAdminSignIn(
     signInDto: ISignInDto,
   ): Promise<OneSerializedResponseDto<ISignInResponse>> {
@@ -187,34 +327,6 @@ export class AuthenticationService {
     );
   }
 
-  async handleConfirmUser(
-    confirmUserDto: IConfirmUserDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    const { username, code } = confirmUserDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    if (existingUser.isVerified) {
-      throw new UserAlreadyConfirmed({
-        message: USER_ALREADY_CONFIRMED_ERROR,
-        pointer: '/user/isVerified',
-      });
-    }
-
-    const confirmUserResponse = await this.identityProviderService.confirmUser(
-      existingUser.username,
-      code,
-    );
-
-    await this.userRepository.updateOneOrFail(existingUser.id, {
-      isVerified: true,
-    });
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
-      AUTHENTICATION_NAME,
-      confirmUserResponse,
-    );
-  }
   async handleConfirmAdminUser(
     confirmAdminUserDto: IConfirmUserDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
@@ -231,7 +343,7 @@ export class AuthenticationService {
 
     const confirmAdminUserResponse =
       await this.identityProviderService.confirmUser(
-        existingAdminUser.username,
+        existingAdminUser.externalId,
         code,
       );
 
@@ -245,23 +357,6 @@ export class AuthenticationService {
     );
   }
 
-  async handleForgotPassword(
-    forgotPasswordDto: IForgotPasswordDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    const { username } = forgotPasswordDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    const response = await this.identityProviderService.forgotPassword(
-      existingUser.username,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
   async handleForgotAdminPassword(
     forgotPasswordDto: IForgotPasswordDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
@@ -271,25 +366,7 @@ export class AuthenticationService {
 
     const response = await this.identityProviderService.forgotPassword(
       existingUser.username,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
-  async handleConfirmPassword(
-    confirmPasswordDto: IConfirmPasswordDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    const { username, newPassword, code } = confirmPasswordDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    const response = await this.identityProviderService.confirmPassword(
-      existingUser.username,
-      newPassword,
-      code,
+      existingUser.externalId,
     );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
@@ -306,26 +383,9 @@ export class AuthenticationService {
       await this.adminRepository.getOneByAdminUsernameOrFail(username);
 
     const response = await this.identityProviderService.confirmPassword(
-      existingUser.username,
+      existingUser.externalId,
       newPassword,
       code,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
-  async handleResendConfirmationCode(
-    resendConfirmationCodeDto: IResendConfirmationCodeDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    const { username } = resendConfirmationCodeDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    const response = await this.identityProviderService.resendConfirmationCode(
-      existingUser.username,
     );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
@@ -342,46 +402,10 @@ export class AuthenticationService {
       await this.adminRepository.getOneByAdminUsernameOrFail(username);
 
     const response = await this.identityProviderService.resendConfirmationCode(
-      existingUser.username,
+      existingUser.externalId,
     );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
-  async handleRefreshSession(
-    refreshSessionDto: IRefreshSessionDto,
-  ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
-    const { username, refreshToken } = refreshSessionDto;
-    const existingUser =
-      await this.userRepository.getOneByUsernameOrFail(username);
-
-    const response = await this.identityProviderService.refreshSession(
-      existingUser.username,
-      refreshToken,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<IRefreshSessionResponse>(
-      AUTHENTICATION_NAME,
-      response,
-    );
-  }
-
-  async handleRefreshAdminSession(
-    refreshSessionDto: IRefreshSessionDto,
-  ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
-    const { username, refreshToken } = refreshSessionDto;
-    const existingUser =
-      await this.adminRepository.getOneByAdminUsernameOrFail(username);
-
-    const response = await this.identityProviderService.refreshSession(
-      existingUser.username,
-      refreshToken,
-    );
-
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<IRefreshSessionResponse>(
       AUTHENTICATION_NAME,
       response,
     );
