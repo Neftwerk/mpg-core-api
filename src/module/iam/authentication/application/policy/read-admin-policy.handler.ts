@@ -23,7 +23,11 @@ export class ReadAdminPolicyHandler implements IPolicyHandler {
     const currentAdmin = this.getCurrentAdmin(request);
 
     const isAllowed = await this.authorizationService.isAllowed(
-      currentAdmin,
+      {
+        ...currentAdmin,
+        name: 'Admin',
+        surname: 'Admin',
+      },
       this.action,
       Admin,
     );
