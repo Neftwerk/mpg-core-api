@@ -29,7 +29,6 @@
     "fixtures": "cross-env NODE_ENV=development fixtures load ./data/fixture --sync --debug --dataSource=./src/config/orm.config.ts --require=ts-node/register --require=tsconfig-paths/register",
     "prepare": "husky install",
     "generate:crud": "yo generators/app/crud --force",
-    "cognito:prepare": "cross-env ./data/scripts/create_user_pool.sh",
     "dev:prepare": "cross-env ./data/scripts/create_default_env.sh",
     "sentry:sourcemaps": "npx sentry-cli sourcemaps inject ./dist && npx sentry-cli sourcemaps upload ./dist"
   },
@@ -40,7 +39,6 @@
     ]
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.496.0",
     "@casl/ability": "^6.5.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
@@ -52,6 +50,7 @@
     "@sentry/cli": "^2.36.1",
     "@sentry/nestjs": "^8.30.0",
     "@sentry/profiling-node": "^8.30.0",
+    "auth0": "^4.18.0",
     "better-sqlite3": "^8.7.0",
     "change-case-all": "^2.1.0",
     "class-transformer": "^0.5.1",

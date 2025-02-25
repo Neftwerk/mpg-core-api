@@ -2,7 +2,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 import { ICollection } from '@common/base/application/dto/collection.interface';
-import { IGetAllOptions } from '@common/base/application/interface/get-all-options.interface';
+import {
+  FilterOptions,
+  IGetAllOptions,
+} from '@common/base/application/interface/get-all-options.interface';
 
 import { IUserRepository } from '@iam/user/application/repository/user.repository.interface';
 import { User } from '@iam/user/domain/user.entity';
@@ -35,6 +38,12 @@ export class UserMysqlRepository implements IUserRepository {
       pageCount: Math.ceil(itemCount / page.size),
       itemCount,
     };
+  }
+
+  async getOneByFilter(filter: FilterOptions<User>): Promise<User> {
+    return this.repository.findOne({
+      where: { ...filter, roles: filter.roles && In(filter.roles) },
+    });
   }
 
   async getOneByUsername(username: string): Promise<User> {

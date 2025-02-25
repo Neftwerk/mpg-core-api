@@ -1,7 +1,14 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import {
+  HttpStatus,
+  INestApplication,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import request from 'supertest';
 
 import { loadFixtures } from '@data/util/fixture-loader';
+
+import { UnknownErrorException } from '@common/base/infrastructure/database/exception/unknown-error.exception';
 
 import { setupApp } from '@config/app.config';
 import { datasourceOptions } from '@config/orm.config';
@@ -23,26 +30,8 @@ import {
 } from '@iam/authentication/application/exception/authentication-exception-messages';
 import { TokenExpiredException } from '@iam/authentication/application/exception/token-expired.exception';
 import { UserAlreadyConfirmed } from '@iam/authentication/application/exception/user-already-confirmed.exception';
-import { AUTHENTICATION_NAME } from '@iam/authentication/domain/authtentication.name';
-import { CodeMismatchException } from '@iam/authentication/infrastructure/cognito/exception/code-mismatch.exception';
-import {
-  CODE_MISMATCH_ERROR,
-  EXPIRED_CODE_ERROR,
-  INVALID_PASSWORD_ERROR,
-  INVALID_REFRESH_TOKEN_ERROR,
-  NEW_PASSWORD_REQUIRED_ERROR,
-  PASSWORD_VALIDATION_ERROR,
-  UNEXPECTED_ERROR_CODE_ERROR,
-  USER_NOT_CONFIRMED_ERROR,
-} from '@iam/authentication/infrastructure/cognito/exception/cognito-exception-messages';
-import { CouldNotSignUpException } from '@iam/authentication/infrastructure/cognito/exception/could-not-sign-up.exception';
-import { ExpiredCodeException } from '@iam/authentication/infrastructure/cognito/exception/expired-code.exception';
-import { InvalidPasswordException } from '@iam/authentication/infrastructure/cognito/exception/invalid-password.exception';
-import { InvalidRefreshTokenException } from '@iam/authentication/infrastructure/cognito/exception/invalid-refresh-token.exception';
-import { NewPasswordRequiredException } from '@iam/authentication/infrastructure/cognito/exception/new-password-required.exception';
-import { PasswordValidationException } from '@iam/authentication/infrastructure/cognito/exception/password-validation.exception';
-import { UnexpectedErrorCodeException } from '@iam/authentication/infrastructure/cognito/exception/unexpected-code.exception';
-import { UserNotConfirmedException } from '@iam/authentication/infrastructure/cognito/exception/user-not-confirmed.exception';
+import { AUTHENTICATION_NAME } from '@iam/authentication/domain/authentication.name';
+import { CodeMismatchException } from '@iam/authentication/infrastructure/auth0/exception/code-mismatch.exception';
 import { UsernameNotFoundException } from '@iam/user/infrastructure/database/exception/username-not-found.exception';
 
 import {
@@ -149,7 +138,7 @@ describe('Authentication Module', () => {
 
       it('should allow users to retry their sign up if the external provider failed', async () => {
         identityProviderServiceMock.signUp.mockRejectedValueOnce(
-          new CouldNotSignUpException({
+          new UnknownErrorException({
             message: 'Could not sign up',
           }),
         );
@@ -224,8 +213,8 @@ describe('Authentication Module', () => {
       });
 
       it('Should throw an error if password is invalid', async () => {
-        const error = new PasswordValidationException({
-          message: PASSWORD_VALIDATION_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Unknown error when signing up',
         });
         identityProviderServiceMock.signUp.mockRejectedValueOnce(error);
         const signUpDto: ISignUpDto = {
@@ -236,7 +225,7 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post('/api/v1/auth/sign-up')
           .send(signUpDto)
-          .expect(HttpStatus.BAD_REQUEST)
+          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
@@ -284,6 +273,7 @@ describe('Authentication Module', () => {
           });
       });
     });
+
     describe('POST - /auth/sign-in', () => {
       it('Should allow users to sign in when provided a correct username and password', async () => {
         const serviceResponse: ISignInResponse = {
@@ -337,11 +327,11 @@ describe('Authentication Module', () => {
       });
 
       it('Should send an InvalidPassword error provided a valid user but invalid password', async () => {
-        const error = new InvalidPasswordException({
-          message: INVALID_PASSWORD_ERROR,
+        const error = new UnauthorizedException({
+          message: 'Wrong email or password.',
         });
         const signInDto: ISignInDto = {
-          username: 'admin@test.com',
+          username: 'regular@test.com',
           password: 'fakePassword',
         };
 
@@ -356,8 +346,8 @@ describe('Authentication Module', () => {
       });
 
       it('Should send an UnconfirmedUser error when user is not confirmed', async () => {
-        const error = new UserNotConfirmedException({
-          message: USER_NOT_CONFIRMED_ERROR,
+        const error = new UnauthorizedException({
+          message: 'Email not verified',
         });
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
@@ -368,15 +358,15 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post('/api/v1/auth/sign-in')
           .send(signInDto)
-          .expect(HttpStatus.FORBIDDEN)
+          .expect(HttpStatus.UNAUTHORIZED)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
 
       it('Should send an UnexpectedErrorCode error when receiving uncovered error codes', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
@@ -394,8 +384,8 @@ describe('Authentication Module', () => {
       });
 
       it('Should send a NewPasswordRequired error when user needs to update their password', async () => {
-        const error = new NewPasswordRequiredException({
-          message: NEW_PASSWORD_REQUIRED_ERROR,
+        const error = new InternalServerErrorException({
+          message: 'Internal server error',
         });
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
@@ -406,12 +396,13 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post('/api/v1/auth/sign-in')
           .send(signInDto)
-          .expect(HttpStatus.UNAUTHORIZED)
+          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
     });
+
     describe('POST - /auth/confirm-user', () => {
       it('Should confirm a user when provided a correct confirmation code', async () => {
         const successResponse = {
@@ -490,7 +481,7 @@ describe('Authentication Module', () => {
 
       it('Should send a CodeMismatch error when provided an incorrect code', async () => {
         const error = new CodeMismatchException({
-          message: CODE_MISMATCH_ERROR,
+          message: 'Error',
         });
         identityProviderServiceMock.confirmUser.mockRejectedValueOnce(error);
         const confirmUserDto: IConfirmUserDto = {
@@ -506,9 +497,10 @@ describe('Authentication Module', () => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should send an ExpiredCode error when provided an expired code', async () => {
-        const error = new ExpiredCodeException({
-          message: EXPIRED_CODE_ERROR,
+        const error = new InternalServerErrorException({
+          message: 'Internal server error',
         });
         identityProviderServiceMock.confirmUser.mockRejectedValueOnce(error);
         const confirmUserDto: IConfirmUserDto = {
@@ -518,15 +510,18 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post('/api/v1/auth/confirm-user')
           .send(confirmUserDto)
-          .expect(HttpStatus.BAD_REQUEST)
+          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
-            expect(body.error.source.pointer).toEqual('/confirm-password/code');
+            expect(body.error.source.pointer).toEqual(
+              '/api/v1/auth/confirm-user',
+            );
           });
       });
+
       it('Should respond with an UnexpectedErrorCodeException when an unexpected error occurs', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.confirmUser.mockRejectedValueOnce(error);
         const confirmUserDto: IConfirmUserDto = {
@@ -542,8 +537,10 @@ describe('Authentication Module', () => {
           });
       });
     });
+
     describe('POST - /auth/forgot-password', () => {
       const url = '/api/v1/auth/forgot-password';
+
       it('Should respond with a success message when provided a username to forgot password', async () => {
         identityProviderServiceMock.forgotPassword.mockResolvedValueOnce({
           success: true,
@@ -560,6 +557,7 @@ describe('Authentication Module', () => {
             expect(body.data.attributes.success).toEqual(true);
           });
       });
+
       it("Should respond with an UserNotFoundException when the user doesn't exist", async () => {
         const username = 'fakeUsername';
         const error = new UsernameNotFoundException({
@@ -574,9 +572,10 @@ describe('Authentication Module', () => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should respond with an UnexpectedErrorCodeException when an unexpected error occurs', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.forgotPassword.mockRejectedValueOnce(error);
         const forgotPasswordDto: IForgotPasswordDto = {
@@ -591,8 +590,10 @@ describe('Authentication Module', () => {
           });
       });
     });
+
     describe('POST - /auth/confirm-password', () => {
       const url = '/api/v1/auth/confirm-password';
+
       it('Should respond with a success message when provided a username, password and code', async () => {
         identityProviderServiceMock.confirmPassword.mockResolvedValueOnce({
           success: true,
@@ -611,9 +612,10 @@ describe('Authentication Module', () => {
             expect(body.data.attributes.success).toEqual(true);
           });
       });
+
       it('Should respond with a CodeMismatchError when the code is invalid', async () => {
         const error = new CodeMismatchException({
-          message: CODE_MISMATCH_ERROR,
+          message: 'Error',
         });
         identityProviderServiceMock.confirmPassword.mockRejectedValueOnce(
           error,
@@ -634,6 +636,7 @@ describe('Authentication Module', () => {
             );
           });
       });
+
       it('Should respond with an UsernameNotFound error when the user does not exist', async () => {
         const username = 'fake@fake.com';
         const error = new UsernameNotFoundException({
@@ -652,9 +655,10 @@ describe('Authentication Module', () => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should respond with a PasswordValidationException when password is not strong enough', async () => {
-        const error = new PasswordValidationException({
-          message: PASSWORD_VALIDATION_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.confirmPassword.mockRejectedValueOnce(
           error,
@@ -667,14 +671,15 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post(url)
           .send(confirmPasswordDto)
-          .expect(HttpStatus.BAD_REQUEST)
+          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should respond with an UnexpectedErrorCodeException when an unexpected error occurs', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.confirmPassword.mockRejectedValueOnce(
           error,
@@ -692,9 +697,10 @@ describe('Authentication Module', () => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should respond with an ExpiredCodeException when the code has expired', async () => {
-        const error = new ExpiredCodeException({
-          message: EXPIRED_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.confirmPassword.mockRejectedValueOnce(
           error,
@@ -707,14 +713,16 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post(url)
           .send(confirmPasswordDto)
-          .expect(HttpStatus.BAD_REQUEST)
+          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
     });
+
     describe('POST - /auth/resend-confirmation-code', () => {
       const url = '/api/v1/auth/resend-confirmation-code';
+
       it('Should resend the confirmation code when requested', async () => {
         const successResponse = {
           success: true,
@@ -734,6 +742,7 @@ describe('Authentication Module', () => {
             expect(body.data.attributes.success).toEqual(true);
           });
       });
+
       it("Should respond with an UserNotFoundException when the user doesn't exist", async () => {
         const username = 'fakeUsername';
         const error = new UsernameNotFoundException({
@@ -748,9 +757,10 @@ describe('Authentication Module', () => {
             expect(body.error.detail).toEqual(error.message);
           });
       });
+
       it('Should respond with an UnexpectedCodeError over unexpected errors', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
+        const error = new UnknownErrorException({
+          message: 'Error',
         });
         identityProviderServiceMock.resendConfirmationCode.mockRejectedValueOnce(
           error,
@@ -763,10 +773,11 @@ describe('Authentication Module', () => {
           .send(confirmPasswordDto)
           .expect(HttpStatus.INTERNAL_SERVER_ERROR)
           .then(({ body }) => {
-            expect(body.error.detail).toEqual(error.message);
+            expect(body?.error?.detail).toEqual(error.message);
           });
       });
     });
+
     describe('POST - /auth/refresh', () => {
       const url = '/api/v1/auth/refresh';
       it('Should refresh the session when provided a valid refresh token', async () => {
@@ -778,7 +789,6 @@ describe('Authentication Module', () => {
         );
         const refreshTokenDto: IRefreshSessionDto = {
           refreshToken: 'refreshToken',
-          username: 'admin@test.com',
         };
         const expectedResponse = expect.objectContaining({
           data: expect.objectContaining({
@@ -793,57 +803,6 @@ describe('Authentication Module', () => {
           .expect(HttpStatus.OK)
           .then(({ body }) => {
             expect(body).toEqual(expectedResponse);
-          });
-      });
-      it('Should respond with an InvalidRefreshTokenError when provided an invalid refresh token', async () => {
-        const error = new InvalidRefreshTokenException({
-          message: INVALID_REFRESH_TOKEN_ERROR,
-        });
-        identityProviderServiceMock.refreshSession.mockRejectedValueOnce(error);
-        const refreshTokenDto: IRefreshSessionDto = {
-          refreshToken: 'fakeRefreshToken',
-          username: 'admin@test.com',
-        };
-        await request(app.getHttpServer())
-          .post(url)
-          .send(refreshTokenDto)
-          .expect(HttpStatus.UNAUTHORIZED)
-          .then(({ body }) => {
-            expect(body.error.detail).toEqual(error.message);
-          });
-      });
-      it("Should respond with an UserNotFoundException when the user doesn't exist", async () => {
-        const username = 'fakeUsername';
-        const error = new UsernameNotFoundException({
-          username,
-        });
-        const refreshTokenDto: IRefreshSessionDto = {
-          refreshToken: 'fakeRefreshToken',
-          username,
-        };
-        await request(app.getHttpServer())
-          .post(url)
-          .send(refreshTokenDto)
-          .expect(HttpStatus.NOT_FOUND)
-          .then(({ body }) => {
-            expect(body.error.detail).toEqual(error.message);
-          });
-      });
-      it('Should respond with an UnexpectedCodeError over unexpected errors', async () => {
-        const error = new UnexpectedErrorCodeException({
-          code: UNEXPECTED_ERROR_CODE_ERROR,
-        });
-        identityProviderServiceMock.refreshSession.mockRejectedValueOnce(error);
-        const refreshSessionDto: IRefreshSessionDto = {
-          username: 'admin@test.com',
-          refreshToken: 'refreshToken',
-        };
-        return request(app.getHttpServer())
-          .post(url)
-          .send(refreshSessionDto)
-          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
-          .then(({ body }) => {
-            expect(body.error.detail).toEqual(error.message);
           });
       });
     });

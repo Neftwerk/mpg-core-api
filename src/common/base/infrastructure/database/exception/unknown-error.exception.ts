@@ -1,8 +1,8 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 
 import { IBaseErrorInfoParams } from '@common/base/application/interface/base-error.interface';
 
-export class NewPasswordRequiredException extends UnauthorizedException {
+export class UnknownErrorException extends InternalServerErrorException {
   constructor(params: IBaseErrorInfoParams) {
     super(params);
   }

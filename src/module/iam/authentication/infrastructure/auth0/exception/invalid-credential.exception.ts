@@ -1,8 +1,8 @@
-import { ForbiddenException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 
 import { IBaseErrorInfoParams } from '@common/base/application/interface/base-error.interface';
 
-export class UserNotConfirmedException extends ForbiddenException {
+export class InvalidCredentialsException extends UnauthorizedException {
   constructor(params: IBaseErrorInfoParams) {
     super(params);
   }
