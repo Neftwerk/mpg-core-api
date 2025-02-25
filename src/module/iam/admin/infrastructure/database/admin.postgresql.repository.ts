@@ -11,7 +11,7 @@ import { AdminNotFoundException } from '@iam/admin/infrastructure/database/excep
 
 import { AdminUsernameNotFoundException } from './exception/admin-username-not-found.exception';
 
-export class AdminMysqlRepository implements IAdminRepository {
+export class AdminPostgresqlRepository implements IAdminRepository {
   constructor(
     @InjectRepository(AdminSchema)
     private readonly repository: Repository<Admin>,

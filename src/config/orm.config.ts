@@ -7,18 +7,20 @@ import { ENVIRONMENT } from '@config/environment.enum';
 dotenv.config();
 
 const production: DataSourceOptions = {
-  type: 'mysql',
+  type: 'postgres',
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  schema: process.env.DB_SCHEMA,
   synchronize: false,
   namingStrategy: new SnakeNamingStrategy(),
+  ssl: { rejectUnauthorized: false },
 };
 
 const staging: DataSourceOptions = {
-  type: 'mysql',
+  type: 'postgres',
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USERNAME,
@@ -29,7 +31,7 @@ const staging: DataSourceOptions = {
 };
 
 const development: DataSourceOptions = {
-  type: 'mysql',
+  type: 'postgres',
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USERNAME,
@@ -65,9 +67,7 @@ export const datasourceOptions: DataSourceOptions = (() => {
     return automatedTests;
   }
 
-  throw new Error(
-    'Please choose "production", "staging" or "development" as your environment',
-  );
+  throw new Error('No environment defined');
 })();
 
 export default new DataSource({

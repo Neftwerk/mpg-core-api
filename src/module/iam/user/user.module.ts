@@ -8,7 +8,7 @@ import { UserMapper } from '@iam/user/application/mapper/user.mapper';
 import { USER_REPOSITORY_KEY } from '@iam/user/application/repository/user.repository.interface';
 import { UserService } from '@iam/user/application/service/user.service';
 import { userPermissions } from '@iam/user/domain/user.permission';
-import { UserMysqlRepository } from '@iam/user/infrastructure/database/user.mysql.repository';
+import { UserPostgresqlRepository } from '@iam/user/infrastructure/database/user.postgresql.repository';
 import { UserSchema } from '@iam/user/infrastructure/database/user.schema';
 import { UserController } from '@iam/user/interface/user.controller';
 
@@ -16,7 +16,7 @@ const policyHandlersProviders = [ReadUserPolicyHandler];
 
 const userRepositoryProvider: Provider = {
   provide: USER_REPOSITORY_KEY,
-  useClass: UserMysqlRepository,
+  useClass: UserPostgresqlRepository,
 };
 
 @Module({

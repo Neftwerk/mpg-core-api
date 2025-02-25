@@ -14,7 +14,7 @@ import { UserSchema } from '@iam/user/infrastructure/database/user.schema';
 
 import { UsernameNotFoundException } from './exception/username-not-found.exception';
 
-export class UserMysqlRepository implements IUserRepository {
+export class UserPostgresqlRepository implements IUserRepository {
   constructor(
     @InjectRepository(UserSchema)
     private readonly repository: Repository<User>,

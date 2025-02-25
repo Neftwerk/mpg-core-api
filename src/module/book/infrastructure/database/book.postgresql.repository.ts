@@ -10,7 +10,7 @@ import { Book } from '@book/domain/book.entity';
 import { BookSchema } from '@book/infrastructure/database/book.schema';
 import { BookNotFoundException } from '@book/infrastructure/database/exception/book-not-found.exception';
 
-export class BookMysqlRepository implements IBookRepository {
+export class BookPostgresqlRepository implements IBookRepository {
   constructor(
     @InjectRepository(BookSchema)
     private readonly repository: Repository<Book>,
