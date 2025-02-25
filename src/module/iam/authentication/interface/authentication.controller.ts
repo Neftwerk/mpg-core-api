@@ -139,8 +139,6 @@ export class AuthenticationController {
   async handleRefreshAdminSession(
     @Body() refreshSessionDto: RefreshSessionDto,
   ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
-    return this.authenticationService.handleRefreshAdminSession(
-      refreshSessionDto,
-    );
+    return this.authenticationService.handleRefreshSession(refreshSessionDto);
   }
 }
