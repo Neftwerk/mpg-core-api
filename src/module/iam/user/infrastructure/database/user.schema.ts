@@ -34,6 +34,7 @@ export const UserSchema = new EntitySchema<User>({
     biography: {
       type: String,
       nullable: true,
+      default: null,
     },
   }),
 });
