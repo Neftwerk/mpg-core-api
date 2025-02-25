@@ -12,6 +12,9 @@ export class UserMapper {
     userResponseDto.username = user.username;
     userResponseDto.externalId = user.externalId;
     userResponseDto.roles = user.roles;
+    userResponseDto.name = user.name;
+    userResponseDto.surname = user.surname;
+    userResponseDto.biography = user.biography;
     userResponseDto.createdAt = user.createdAt;
     userResponseDto.updatedAt = user.updatedAt;
     userResponseDto.deletedAt = user.deletedAt;
