@@ -4,15 +4,31 @@ items:
     username: 'admin@test.com'
     externalId: '00000000-0000-0000-0000-00000000000X'
     roles: admin
+    isVerified: true
+    name: 'Admin'
+    surname: 'User'
+    biography: 'Admin user'
   confirm-user:
     username: 'confirm@test.com'
     externalId: '00000000-0000-0000-0000-00000000000Y'
     roles: admin
+    isVerified: false
+    name: 'Confirm'
+    surname: 'User'
+    biography: 'Confirm user'
   error-user:
     username: 'error@test.com'
     externalId: '00000000-0000-0000-0000-00000000000Z'
     roles: admin
+    isVerified: false
+    name: 'Error'
+    surname: 'User'
+    biography: 'Error user'
   regular-user:
     username: 'regular@test.com'
     externalId: '00000000-0000-0000-0000-00000000000A'
     roles: regular
+    isVerified: true
+    name: 'Regular'
+    surname: 'User'
+    biography: 'Regular user'

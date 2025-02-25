@@ -4,7 +4,13 @@ items:
     username: 'admin@test.com'
     externalId: '00000000-0000-0000-0000-00000000000X'
     roles: admin
+    name: 'Admin'
+    surname: 'User'
+    biography: 'Admin user'
   user{2..23}:
     username: '{{internet.email}}'
     externalId: '{{string.uuid}}'
     roles: regular
+    name: '{{person.firstName}}'
+    surname: '{{person.lastName}}'
+    biography: '{{lorem.paragraph}}'
