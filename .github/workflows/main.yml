@@ -42,6 +42,11 @@ jobs:
       - name: NPM or Yarn install with caching
         uses: bahmutov/npm-install@v1.6.0
 
+      - name: Setup LCOV
+        uses: hrishikesh-kadam/setup-lcov@v1
+        with:
+          ref: v1.14
+
       - name: Build and test with coverage
         run: npm run test:cov
 

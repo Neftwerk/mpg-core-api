@@ -10,7 +10,7 @@ import { UpdateBookPolicyHandler } from '@book/application/policy/update-book-po
 import { BOOK_REPOSITORY_KEY } from '@book/application/repository/book.repository.interface';
 import { BookService } from '@book/application/service/book.service';
 import { bookPermissions } from '@book/domain/book.permission';
-import { BookMysqlRepository } from '@book/infrastructure/database/book.mysql.repository';
+import { BookPostgresqlRepository } from '@book/infrastructure/database/book.postgresql.repository';
 import { BookSchema } from '@book/infrastructure/database/book.schema';
 import { BookController } from '@book/interface/book.controller';
 
@@ -25,7 +25,7 @@ const policyHandlersProviders = [
 
 const bookRepositoryProvider: Provider = {
   provide: BOOK_REPOSITORY_KEY,
-  useClass: BookMysqlRepository,
+  useClass: BookPostgresqlRepository,
 };
 
 @Module({

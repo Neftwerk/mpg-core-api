@@ -13,7 +13,10 @@ export interface IIdentityProviderService {
     username: string,
     code: string,
   ): Promise<ISuccessfulOperationResponse>;
-  forgotPassword(username: string): Promise<ISuccessfulOperationResponse>;
+  forgotPassword(
+    username: string,
+    externalId: string,
+  ): Promise<ISuccessfulOperationResponse>;
   confirmPassword(
     username: string,
     newPassword: string,
@@ -22,8 +25,5 @@ export interface IIdentityProviderService {
   resendConfirmationCode(
     username: string,
   ): Promise<ISuccessfulOperationResponse>;
-  refreshSession(
-    username: string,
-    refreshToken: string,
-  ): Promise<IRefreshSessionResponse>;
+  refreshSession(refreshToken: string): Promise<IRefreshSessionResponse>;
 }

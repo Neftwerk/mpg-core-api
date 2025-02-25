@@ -39,15 +39,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         : {
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            _audience: configService.get('cognito.clientId'),
-            issuer: configService.get('cognito.issuer'),
+            _audience: configService.get('auth0.clientId'),
+            issuer: `https://${configService.get('auth0.domain')}/`,
             algorithms: ['RS256'],
             secretOrKeyProvider: passportJwtSecret({
               cache: true,
               rateLimit: true,
               jwksRequestsPerMinute: 5,
-              jwksUri:
-                configService.get('cognito.issuer') + '/.well-known/jwks.json',
+              jwksUri: `https://${configService.get(
+                'auth0.domain',
+              )}/.well-known/jwks.json`,
             }),
           };
 
@@ -55,13 +56,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessTokenPayload: IAccessTokenPayload): Promise<User> {
-    const currentUser = await this.userRepository.getOneByExternalId(
-      accessTokenPayload.sub,
+    const formattedSub = accessTokenPayload.sub.replace(
+      this.configService.get('jwt.providerPrefix'),
+      '',
     );
 
-    const currentAdminUser = await this.adminRepository.getOneByExternalId(
-      accessTokenPayload.sub,
-    );
+    const currentUser =
+      await this.userRepository.getOneByExternalId(formattedSub);
+
+    const currentAdminUser =
+      await this.adminRepository.getOneByExternalId(formattedSub);
 
     if (!currentUser && !currentAdminUser) {
       throw new ForbiddenException();
