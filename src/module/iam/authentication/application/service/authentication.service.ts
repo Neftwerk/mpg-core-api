@@ -308,7 +308,7 @@ export class AuthenticationService {
 
     const confirmAdminUserResponse =
       await this.identityProviderService.confirmUser(
-        existingAdminUser.username,
+        existingAdminUser.externalId,
         code,
       );
 
@@ -348,7 +348,7 @@ export class AuthenticationService {
       await this.adminRepository.getOneByAdminUsernameOrFail(username);
 
     const response = await this.identityProviderService.confirmPassword(
-      existingUser.username,
+      existingUser.externalId,
       newPassword,
       code,
     );
@@ -367,7 +367,7 @@ export class AuthenticationService {
       await this.adminRepository.getOneByAdminUsernameOrFail(username);
 
     const response = await this.identityProviderService.resendConfirmationCode(
-      existingUser.username,
+      existingUser.externalId,
     );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
