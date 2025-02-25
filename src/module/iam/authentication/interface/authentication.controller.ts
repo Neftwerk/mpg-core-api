@@ -4,6 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { OneSerializedResponseDto } from '@common/base/application/dto/one-serialized-response.dto';
 import { ISuccessfulOperationResponse } from '@common/base/application/interface/successful-operation-response.interface';
 
+import { AdminResponseDto } from '@iam/admin/application/dto/admin-response.dto';
 import { ConfirmPasswordDto } from '@iam/authentication/application/dto/confirm-password.dto';
 import { ConfirmUserDto } from '@iam/authentication/application/dto/confirm-user.dto';
 import { ForgotPasswordDto } from '@iam/authentication/application/dto/forgot-password.dto';
@@ -33,8 +34,8 @@ export class AuthenticationController {
 
   @Post('/admin/sign-up')
   async handleAdminSignUp(
-    @Body() signUpDto: SignUpDto,
-  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
+    @Body() signUpDto: Omit<SignUpDto, 'name' | 'surname' | 'biography'>,
+  ): Promise<OneSerializedResponseDto<AdminResponseDto>> {
     return this.authenticationService.handleAdminSignUp(signUpDto);
   }
 

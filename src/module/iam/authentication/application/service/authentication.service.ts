@@ -9,6 +9,7 @@ import {
   ADMIN_REPOSITORY_KEY,
   IAdminRepository,
 } from '@iam/admin/application/repository/admin.repository.interface';
+import { Admin } from '@iam/admin/domain/admin.entity';
 import { ADMIN_ENTITY_NAME } from '@iam/admin/domain/admin.name';
 import { AuthenticationResponseAdapter } from '@iam/authentication/application/adapter/authentication-response.adapter';
 import { IConfirmPasswordDto } from '@iam/authentication/application/dto/confirm-password.dto.interface';
@@ -58,18 +59,18 @@ export class AuthenticationService {
   async handleSignUp(
     signUpDto: ISignUpDto,
   ): Promise<OneSerializedResponseDto<UserResponseDto>> {
-    const { username, password } = signUpDto;
+    const { username } = signUpDto;
 
     const existingUser = await this.userRepository.getOneByFilter({
       username,
     });
 
     if (!existingUser) {
-      return this.signUpAndSave(username, password);
+      return this.signUpAndSave(signUpDto);
     }
 
     if (!existingUser.externalId) {
-      return this.signUpAndSave(username, password, existingUser.id);
+      return this.signUpAndSave(signUpDto, existingUser.id);
     }
 
     throw new UserAlreadySignedUp({
@@ -79,19 +80,23 @@ export class AuthenticationService {
   }
 
   private async signUpAndSave(
-    email: string,
-    password: string,
+    { username: email, password, name, surname, biography }: ISignUpDto,
     userId?: number,
   ): Promise<OneSerializedResponseDto<UserResponseDto>> {
+    const userToSave = new User(
+      email,
+      [AppRole.Regular],
+      name,
+      surname,
+      false,
+      undefined,
+      biography,
+    );
+
     let userToSaveId = userId;
 
     if (!userToSaveId) {
-      userToSaveId = (
-        await this.userRepository.saveOne({
-          username: email,
-          roles: [AppRole.Regular],
-        } as User)
-      ).id;
+      userToSaveId = (await this.userRepository.saveOne(userToSave)).id;
     }
 
     const { externalId } = await this.identityProviderService.signUp(
@@ -263,7 +268,7 @@ export class AuthenticationService {
   }
 
   async handleAdminSignUp(
-    signUpDto: ISignUpDto,
+    signUpDto: Omit<ISignUpDto, 'name' | 'surname' | 'biography'>,
   ): Promise<OneSerializedResponseDto<AdminResponseDto>> {
     const { username, password } = signUpDto;
 
@@ -285,12 +290,12 @@ export class AuthenticationService {
     username: string,
     password: string,
     userId?: number,
-  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
+  ): Promise<OneSerializedResponseDto<AdminResponseDto>> {
     let userToSaveId = userId;
 
     if (!userToSaveId) {
       userToSaveId = (
-        await this.adminRepository.saveOne(new User(username, [AppRole.Admin]))
+        await this.adminRepository.saveOne(new Admin(username, [AppRole.Admin]))
       ).id;
     }
 
@@ -303,7 +308,7 @@ export class AuthenticationService {
       externalId,
     });
 
-    return this.authenticationResponseAdapter.oneEntityResponseAuth<UserResponseDto>(
+    return this.authenticationResponseAdapter.oneEntityResponseAuth<AdminResponseDto>(
       ADMIN_ENTITY_NAME,
       this.adminMapper.fromAdminToAdminResponseDto(adminUser),
     );
