@@ -12,7 +12,7 @@ import { AdminModule } from '@iam/admin/admin.module';
 import { AuthenticationResponseAdapter } from '@iam/authentication/application/adapter/authentication-response.adapter';
 import { AuthenticationService } from '@iam/authentication/application/service/authentication.service';
 import { IDENTITY_PROVIDER_SERVICE_KEY } from '@iam/authentication/application/service/identity-provider.service.interface';
-import { CognitoService } from '@iam/authentication/infrastructure/cognito/cognito.service';
+import { Auth0Service } from '@iam/authentication/infrastructure/auth0/auth0.service';
 import { AccessTokenGuard } from '@iam/authentication/infrastructure/guard/access-token.guard';
 import { AuthenticationGuard } from '@iam/authentication/infrastructure/guard/authentication.guard';
 import { JwtStrategy } from '@iam/authentication/infrastructure/passport/jwt.strategy';
@@ -23,7 +23,7 @@ import { EmailDomainMiddleware } from './infrastructure/middleware/email-domain.
 
 const authenticationRepositoryProvider: Provider = {
   provide: IDENTITY_PROVIDER_SERVICE_KEY,
-  useClass: CognitoService,
+  useClass: Auth0Service,
 };
 
 @Module({
