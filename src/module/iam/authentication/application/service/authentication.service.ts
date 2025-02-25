@@ -39,6 +39,7 @@ import {
   USER_REPOSITORY_KEY,
 } from '@iam/user/application/repository/user.repository.interface';
 import { User } from '@iam/user/domain/user.entity';
+import { UsernameNotFoundException } from '@iam/user/infrastructure/database/exception/username-not-found.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -111,9 +112,16 @@ export class AuthenticationService {
     signInDto: ISignInDto,
   ): Promise<OneSerializedResponseDto<ISignInResponse>> {
     const { username, password } = signInDto;
+
     const existingUser = await this.userRepository.getOneByFilter({
       username,
     });
+
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
 
     const response = await this.identityProviderService.signIn(
       existingUser.username,
@@ -130,10 +138,18 @@ export class AuthenticationService {
     confirmUserDto: IConfirmUserDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
     const { username, code } = confirmUserDto;
-    const { externalId, isVerified, id } =
-      await this.userRepository.getOneByFilter({
+
+    const userFromRepository = await this.userRepository.getOneByFilter({
+      username,
+    });
+
+    if (!userFromRepository) {
+      throw new UsernameNotFoundException({
         username,
       });
+    }
+
+    const { externalId, isVerified, id } = userFromRepository;
 
     if (isVerified) {
       throw new UserAlreadyConfirmed({
@@ -161,13 +177,19 @@ export class AuthenticationService {
     forgotPasswordDto: IForgotPasswordDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
     const { username } = forgotPasswordDto;
-    const { externalId } = await this.userRepository.getOneByFilter({
+    const existingUser = await this.userRepository.getOneByFilter({
       username,
     });
 
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
     const response = await this.identityProviderService.forgotPassword(
       username,
-      externalId,
+      existingUser.externalId,
     );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
@@ -180,12 +202,18 @@ export class AuthenticationService {
     confirmPasswordDto: IConfirmPasswordDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
     const { username, newPassword, code } = confirmPasswordDto;
-    const { externalId } = await this.userRepository.getOneByFilter({
+    const existingUser = await this.userRepository.getOneByFilter({
       username,
     });
 
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
     const response = await this.identityProviderService.confirmPassword(
-      externalId,
+      existingUser.externalId,
       newPassword,
       code,
     );
@@ -200,12 +228,19 @@ export class AuthenticationService {
     resendConfirmationCodeDto: IResendConfirmationCodeDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
     const { username } = resendConfirmationCodeDto;
-    const { externalId } = await this.userRepository.getOneByFilter({
+    const existingUser = await this.userRepository.getOneByFilter({
       username,
     });
 
-    const response =
-      await this.identityProviderService.resendConfirmationCode(externalId);
+    if (!existingUser) {
+      throw new UsernameNotFoundException({
+        username,
+      });
+    }
+
+    const response = await this.identityProviderService.resendConfirmationCode(
+      existingUser.externalId,
+    );
 
     return this.authenticationResponseAdapter.oneEntityResponseAuth<ISuccessfulOperationResponse>(
       AUTHENTICATION_NAME,
