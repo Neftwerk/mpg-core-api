@@ -10,6 +10,7 @@ import {
   ADMIN_REPOSITORY_KEY,
   IAdminRepository,
 } from '@iam/admin/application/repository/admin.repository.interface';
+import { Admin } from '@iam/admin/domain/admin.entity';
 import { IAccessTokenPayload } from '@iam/authentication/infrastructure/passport/access-token-payload.interface';
 import {
   IUserRepository,
@@ -55,7 +56,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super(options);
   }
 
-  async validate(accessTokenPayload: IAccessTokenPayload): Promise<User> {
+  async validate(
+    accessTokenPayload: IAccessTokenPayload,
+  ): Promise<User | Admin> {
     const formattedSub = accessTokenPayload.sub.replace(
       this.configService.get('jwt.providerPrefix'),
       '',
