@@ -117,6 +117,8 @@ describe('Authentication Module', () => {
         const signUpDto = {
           username: 'john.doe@test.com',
           password: '$Test123',
+          name: 'John',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -146,6 +148,8 @@ describe('Authentication Module', () => {
         const signUpDto = {
           username: 'jane.doe@test.com',
           password: '$Test123',
+          name: 'Jane',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -184,6 +188,8 @@ describe('Authentication Module', () => {
         const signUpDto = {
           username: 'thomas.doe@test.com',
           password: '$Test123',
+          name: 'Thomas',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -220,6 +226,8 @@ describe('Authentication Module', () => {
         const signUpDto: ISignUpDto = {
           username: 'some@account.com',
           password: '123456',
+          name: 'Some',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -287,6 +295,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
+          name: 'Admin',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -313,6 +323,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'fakeUsername',
           password: 'fakePassword',
+          name: 'fakeName',
+          surname: 'fakeSurname',
         };
         const error = new UsernameNotFoundException({
           username: signInDto.username,
@@ -333,6 +345,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'regular@test.com',
           password: 'fakePassword',
+          name: 'Regular',
+          surname: 'User',
         };
 
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
@@ -353,6 +367,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
+          name: 'Admin',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -372,6 +388,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
+          name: 'Admin',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -391,6 +409,8 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
+          name: 'Admin',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -413,7 +433,7 @@ describe('Authentication Module', () => {
           successResponse,
         );
         const confirmUserDto: IConfirmUserDto = {
-          username: 'admin@test.com',
+          username: 'confirm@test.com',
           code: '123456',
         };
         await request(app.getHttpServer())
@@ -437,19 +457,19 @@ describe('Authentication Module', () => {
       });
 
       it('Should send a UserAlreadyConfirmed error when trying to confirm a confirmed user', async () => {
-        const username = 'confirm@test.com';
         const error = new UserAlreadyConfirmed({
           message: USER_ALREADY_CONFIRMED_ERROR,
         });
+
         const confirmUserDto: IConfirmUserDto = {
-          username,
           code: '123456',
+          username: 'confirm@test.com',
         };
 
-        await request(app.getHttpServer())
-          .post('/api/v1/auth/confirm-user')
-          .send(confirmUserDto)
-          .expect(HttpStatus.OK);
+        // await request(app.getHttpServer())
+        //   .post('/api/v1/auth/confirm-user')
+        //   .send(confirmUserDto)
+        //   .expect(HttpStatus.OK);
 
         await request(app.getHttpServer())
           .post('/api/v1/auth/confirm-user')
