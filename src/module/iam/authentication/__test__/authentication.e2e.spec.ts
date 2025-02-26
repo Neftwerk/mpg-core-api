@@ -295,8 +295,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
-          name: 'Admin',
-          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -323,8 +321,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'fakeUsername',
           password: 'fakePassword',
-          name: 'fakeName',
-          surname: 'fakeSurname',
         };
         const error = new UsernameNotFoundException({
           username: signInDto.username,
@@ -345,8 +341,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'regular@test.com',
           password: 'fakePassword',
-          name: 'Regular',
-          surname: 'User',
         };
 
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
@@ -367,8 +361,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
-          name: 'Admin',
-          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -388,8 +380,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
-          name: 'Admin',
-          surname: 'User',
         };
 
         await request(app.getHttpServer())
@@ -409,8 +399,6 @@ describe('Authentication Module', () => {
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
           password: 'password',
-          name: 'Admin',
-          surname: 'User',
         };
 
         await request(app.getHttpServer())
