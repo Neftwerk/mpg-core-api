@@ -894,9 +894,8 @@ describe('Authentication Module', () => {
         await request(app.getHttpServer())
           .post('/api/v1/auth/admin/sign-in')
           .send(signInDto)
-          // .expect(HttpStatus.OK)
+          .expect(HttpStatus.OK)
           .then(({ body }) => {
-            console.log(body);
             const expectedResponse = expect.objectContaining({
               data: expect.objectContaining({
                 type: AUTHENTICATION_NAME,
