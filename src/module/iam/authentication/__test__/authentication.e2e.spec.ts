@@ -466,11 +466,6 @@ describe('Authentication Module', () => {
           username: 'confirm@test.com',
         };
 
-        // await request(app.getHttpServer())
-        //   .post('/api/v1/auth/confirm-user')
-        //   .send(confirmUserDto)
-        //   .expect(HttpStatus.OK);
-
         await request(app.getHttpServer())
           .post('/api/v1/auth/confirm-user')
           .send(confirmUserDto)
@@ -830,7 +825,7 @@ describe('Authentication Module', () => {
 
   describe('Admin Authentication', () => {
     describe('POST - /auth/admin/sign-up', () => {
-      it('should allow admin sign up when no admin exists', async () => {
+      it('Should allow admin sign up when no admin exists', async () => {
         const externalId = '00000000-0000-0000-0000-000000000001';
         identityProviderServiceMock.signUp.mockResolvedValueOnce({
           externalId,
@@ -858,7 +853,7 @@ describe('Authentication Module', () => {
           });
       });
 
-      it('should not allow admin sign up when an admin already exists', async () => {
+      it('Should not allow admin sign up when an admin already exists', async () => {
         const signUpDto = {
           username: 'admin.second@test.com',
           password: '$Test123',
@@ -877,7 +872,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/sign-in', () => {
-      it('should allow admin to sign in with valid credentials', async () => {
+      it('Should allow admin to sign in with valid credentials', async () => {
         const serviceResponse = {
           accessToken: 'adminAccessToken',
           refreshToken: 'adminRefreshToken',
@@ -908,7 +903,7 @@ describe('Authentication Module', () => {
           });
       });
 
-      it('should not allow sign in with non-admin credentials', async () => {
+      it('Should not allow sign in with non-admin credentials', async () => {
         const signInDto = {
           username: 'regular@test.com',
           password: '$Test123',
@@ -922,7 +917,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/confirm-user', () => {
-      it('should confirm admin user with valid confirmation code', async () => {
+      it('Should confirm admin user with valid confirmation code', async () => {
         const successResponse = {
           success: true,
           message: 'Admin user successfully confirmed',
@@ -953,7 +948,7 @@ describe('Authentication Module', () => {
           });
       });
 
-      it('should not allow confirming non-admin user through admin endpoint', async () => {
+      it('Should not allow confirming non-admin user through admin endpoint', async () => {
         const confirmUserDto = {
           username: 'regular@test.com',
           code: '123456',
@@ -967,7 +962,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/forgot-password', () => {
-      it('should handle admin forgot password request', async () => {
+      it('Should handle admin forgot password request', async () => {
         const successResponse = {
           success: true,
           message: 'Password reset instructions have been sent',
@@ -991,7 +986,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/confirm-password', () => {
-      it('should confirm admin password reset with valid code', async () => {
+      it('Should confirm admin password reset with valid code', async () => {
         const successResponse = {
           success: true,
           message: 'Admin password has been successfully updated',
@@ -1017,7 +1012,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/resend-confirmation-code', () => {
-      it('should resend confirmation code for admin user', async () => {
+      it('Should resend confirmation code for admin user', async () => {
         const successResponse = {
           success: true,
           message: 'A new confirmation code has been sent',
@@ -1041,7 +1036,7 @@ describe('Authentication Module', () => {
     });
 
     describe('POST - /auth/admin/refresh', () => {
-      it('should refresh admin session with valid refresh token', async () => {
+      it('Should refresh admin session with valid refresh token', async () => {
         const successResponse = {
           accessToken: 'newAdminAccessToken',
         };
