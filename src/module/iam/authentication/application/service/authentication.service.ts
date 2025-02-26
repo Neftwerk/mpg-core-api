@@ -315,7 +315,7 @@ export class AuthenticationService {
   }
 
   async handleAdminSignIn(
-    signInDto: ISignInDto,
+    signInDto: Omit<ISignInDto, 'name' | 'surname' | 'biography'>,
   ): Promise<OneSerializedResponseDto<ISignInResponse>> {
     const { username, password } = signInDto;
     const existingUser =

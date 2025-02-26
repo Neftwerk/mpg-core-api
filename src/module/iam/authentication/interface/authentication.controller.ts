@@ -50,7 +50,7 @@ export class AuthenticationController {
   @Post('admin/sign-in')
   @HttpCode(HttpStatus.OK)
   async handleAdminSignIn(
-    @Body() signInDto: SignInDto,
+    @Body() signInDto: Omit<SignInDto, 'name' | 'surname' | 'biography'>,
   ): Promise<OneSerializedResponseDto<ISignInResponse>> {
     return this.authenticationService.handleAdminSignIn(signInDto);
   }
