@@ -8,7 +8,6 @@ import {
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
 
-import { AdminModule } from '@iam/admin/admin.module';
 import { AuthenticationResponseAdapter } from '@iam/authentication/application/adapter/authentication-response.adapter';
 import { AuthenticationService } from '@iam/authentication/application/service/authentication.service';
 import { IDENTITY_PROVIDER_SERVICE_KEY } from '@iam/authentication/application/service/identity-provider.service.interface';
@@ -27,7 +26,7 @@ const authenticationRepositoryProvider: Provider = {
 };
 
 @Module({
-  imports: [PassportModule, UserModule, AdminModule],
+  imports: [PassportModule, UserModule],
   controllers: [AuthenticationController],
   providers: [
     JwtStrategy,
