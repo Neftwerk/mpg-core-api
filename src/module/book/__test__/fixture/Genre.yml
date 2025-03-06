@@ -1,6 +1,0 @@
-entity: Genre
-items:
-  genre1:
-    name: Horror
-  genre{2..23}:
-    name: '{{string.alpha}}'
