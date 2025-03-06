@@ -30,7 +30,8 @@
     "prepare": "husky install",
     "generate:crud": "yo generators/app/crud --force",
     "dev:prepare": "cross-env ./data/scripts/create_default_env.sh",
-    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject ./dist && npx sentry-cli sourcemaps upload ./dist"
+    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject ./dist && npx sentry-cli sourcemaps upload ./dist",
+    "prestart:prod": "run-s setup:env migration:run"
   },
   "lint-staged": {
     "src/**/*.ts": [
