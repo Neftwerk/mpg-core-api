@@ -26,6 +26,7 @@ const staging: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  schema: process.env.DB_SCHEMA,
   synchronize: false,
   namingStrategy: new SnakeNamingStrategy(),
 };
@@ -37,6 +38,7 @@ const development: DataSourceOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  schema: process.env.DB_SCHEMA,
   synchronize: true,
   namingStrategy: new SnakeNamingStrategy(),
 };
