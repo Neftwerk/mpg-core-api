@@ -8,10 +8,6 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 import { environmentConfig } from '@config/environment.config';
 import { datasourceOptions } from '@config/orm.config';
 
-import { BookModule } from '@book/book.module';
-
-import { GenreModule } from '@genre/genre.module';
-
 import { IamModule } from '@iam/iam.module';
 
 import { AppService } from '@/module/app/application/service/app.service';
@@ -36,8 +32,6 @@ import { PaymentModule } from '@/module/payment/payment.module';
       },
     }),
     IamModule,
-    BookModule,
-    GenreModule,
     DiscoveryModule,
     PaymentModule,
   ],

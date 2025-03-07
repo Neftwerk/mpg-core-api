@@ -6,6 +6,7 @@ import { Base } from '@common/base/domain/base.entity';
 import { REQUEST_USER_KEY } from '@iam/authentication/authentication.constants';
 import { AuthorizationService } from '@iam/authorization/application/service/authorization.service';
 import { AppAction } from '@iam/authorization/domain/app-action.enum';
+import { AppSubjects } from '@iam/authorization/infrastructure/casl/type/app-subjects.type';
 import { IPolicyHandler } from '@iam/authorization/infrastructure/policy/handler/policy-handler.interface';
 import { PolicyHandlerStorage } from '@iam/authorization/infrastructure/policy/storage/policies-handler.storage';
 import { User } from '@iam/user/domain/user.entity';
@@ -27,7 +28,7 @@ export class GenericPolicyHandler implements IPolicyHandler {
     const isAllowed = await this.authorizationService.isAllowed(
       currentUser,
       this.action,
-      this.entityType,
+      this.entityType as AppSubjects,
     );
 
     if (!isAllowed) {

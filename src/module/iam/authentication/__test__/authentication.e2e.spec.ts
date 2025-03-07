@@ -116,7 +116,9 @@ describe('Authentication Module', () => {
 
         const signUpDto = {
           username: 'john.doe@test.com',
-          password: '$Test123',
+          password: 'Password.123',
+          name: 'John',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -145,7 +147,9 @@ describe('Authentication Module', () => {
 
         const signUpDto = {
           username: 'jane.doe@test.com',
-          password: '$Test123',
+          password: 'Password.123',
+          name: 'Jane',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -183,7 +187,9 @@ describe('Authentication Module', () => {
 
         const signUpDto = {
           username: 'thomas.doe@test.com',
-          password: '$Test123',
+          password: 'Password.123',
+          name: 'Thomas',
+          surname: 'Doe',
         } as SignUpDto;
 
         await request(app.getHttpServer())
@@ -213,19 +219,23 @@ describe('Authentication Module', () => {
       });
 
       it('Should throw an error if password is invalid', async () => {
-        const error = new UnknownErrorException({
-          message: 'Unknown error when signing up',
-        });
+        const error = {
+          message: [
+            'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@, $, !, %, *, ?, &, .)',
+          ],
+        };
         identityProviderServiceMock.signUp.mockRejectedValueOnce(error);
         const signUpDto: ISignUpDto = {
           username: 'some@account.com',
-          password: '123456',
+          password: '123456789',
+          name: 'Some',
+          surname: 'User',
         };
 
         await request(app.getHttpServer())
           .post('/api/v1/auth/sign-up')
           .send(signUpDto)
-          .expect(HttpStatus.INTERNAL_SERVER_ERROR)
+          .expect(HttpStatus.BAD_REQUEST)
           .then(({ body }) => {
             expect(body.error.detail).toEqual(error.message);
           });
@@ -240,7 +250,7 @@ describe('Authentication Module', () => {
           .post('/api/v1/auth/sign-up')
           .send({
             username: invalidDomainEmail,
-            password: 'ValidPass123!',
+            password: 'Password.123',
           })
           .expect(HttpStatus.UNAUTHORIZED)
           .then(({ body }) => {
@@ -286,7 +296,7 @@ describe('Authentication Module', () => {
 
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
-          password: 'password',
+          password: 'Password.123',
         };
 
         await request(app.getHttpServer())
@@ -312,7 +322,7 @@ describe('Authentication Module', () => {
       it('Should send an UserNotFound error when provided an invalid username', async () => {
         const signInDto: ISignInDto = {
           username: 'fakeUsername',
-          password: 'fakePassword',
+          password: 'Password.123',
         };
         const error = new UsernameNotFoundException({
           username: signInDto.username,
@@ -328,11 +338,12 @@ describe('Authentication Module', () => {
 
       it('Should send an InvalidPassword error provided a valid user but invalid password', async () => {
         const error = new UnauthorizedException({
-          message: 'Wrong email or password.',
+          message:
+            'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@, $, !, %, *, ?, &, .)", "Password must be at least 8 characters long',
         });
         const signInDto: ISignInDto = {
           username: 'regular@test.com',
-          password: 'fakePassword',
+          password: 'fake.123Password',
         };
 
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
@@ -352,7 +363,7 @@ describe('Authentication Module', () => {
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
-          password: 'password',
+          password: 'Password.123',
         };
 
         await request(app.getHttpServer())
@@ -371,7 +382,7 @@ describe('Authentication Module', () => {
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
-          password: 'password',
+          password: 'Password.123',
         };
 
         await request(app.getHttpServer())
@@ -390,7 +401,7 @@ describe('Authentication Module', () => {
         identityProviderServiceMock.signIn.mockRejectedValueOnce(error);
         const signInDto: ISignInDto = {
           username: 'admin@test.com',
-          password: 'password',
+          password: 'Password.123',
         };
 
         await request(app.getHttpServer())
@@ -413,7 +424,7 @@ describe('Authentication Module', () => {
           successResponse,
         );
         const confirmUserDto: IConfirmUserDto = {
-          username: 'admin@test.com',
+          username: 'confirm@test.com',
           code: '123456',
         };
         await request(app.getHttpServer())
@@ -437,19 +448,14 @@ describe('Authentication Module', () => {
       });
 
       it('Should send a UserAlreadyConfirmed error when trying to confirm a confirmed user', async () => {
-        const username = 'confirm@test.com';
         const error = new UserAlreadyConfirmed({
           message: USER_ALREADY_CONFIRMED_ERROR,
         });
-        const confirmUserDto: IConfirmUserDto = {
-          username,
-          code: '123456',
-        };
 
-        await request(app.getHttpServer())
-          .post('/api/v1/auth/confirm-user')
-          .send(confirmUserDto)
-          .expect(HttpStatus.OK);
+        const confirmUserDto: IConfirmUserDto = {
+          code: '123456',
+          username: 'confirm@test.com',
+        };
 
         await request(app.getHttpServer())
           .post('/api/v1/auth/confirm-user')

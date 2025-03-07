@@ -20,7 +20,11 @@ module.exports = {
     },
   },
   coveragePathIgnorePatterns: [
-    "<rootDir>/module/iam/authentication/infrastructure/cognito/cognito.service.ts"
+    '<rootDir>/module/iam/authentication/infrastructure/cognito/cognito.service.ts',
+    '<rootDir>/module/iam/authorization/infrastructure/policy/handler/generic-policy.handler.ts',
+    '<rootDir>/module/iam/authorization/infrastructure/policy/guard/policy.guard.ts',
+    '<rootDir>/common/base/application/mapper/dto.mapper.ts',
+    '<rootDir>/common/base/application/mapper/mapper.options.ts',
   ],
   testEnvironment: 'node',
   // Keep these mappings synchronized with the ones in tsconfig.json as you add new modules

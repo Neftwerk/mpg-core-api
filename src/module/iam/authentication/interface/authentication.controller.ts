@@ -31,27 +31,12 @@ export class AuthenticationController {
     return this.authenticationService.handleSignUp(signUpDto);
   }
 
-  @Post('/admin/sign-up')
-  async handleAdminSignUp(
-    @Body() signUpDto: SignUpDto,
-  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
-    return this.authenticationService.handleAdminSignUp(signUpDto);
-  }
-
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   async handleSignIn(
     @Body() signInDto: SignInDto,
   ): Promise<OneSerializedResponseDto<ISignInResponse>> {
     return this.authenticationService.handleSignIn(signInDto);
-  }
-
-  @Post('admin/sign-in')
-  @HttpCode(HttpStatus.OK)
-  async handleAdminSignIn(
-    @Body() signInDto: SignInDto,
-  ): Promise<OneSerializedResponseDto<ISignInResponse>> {
-    return this.authenticationService.handleAdminSignIn(signInDto);
   }
 
   @Post('confirm-user')
@@ -62,14 +47,6 @@ export class AuthenticationController {
     return this.authenticationService.handleConfirmUser(confirmUserDto);
   }
 
-  @Post('admin/confirm-user')
-  @HttpCode(HttpStatus.OK)
-  async handleConfirmAdminUser(
-    @Body() confirmUserDto: ConfirmUserDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    return this.authenticationService.handleConfirmAdminUser(confirmUserDto);
-  }
-
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async handleForgotPassword(
@@ -78,32 +55,12 @@ export class AuthenticationController {
     return this.authenticationService.handleForgotPassword(forgotPasswordDto);
   }
 
-  @Post('admin/forgot-password')
-  @HttpCode(HttpStatus.OK)
-  async handleForgotAdminPassword(
-    @Body() forgotPasswordDto: ForgotPasswordDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    return this.authenticationService.handleForgotAdminPassword(
-      forgotPasswordDto,
-    );
-  }
-
   @Post('confirm-password')
   @HttpCode(HttpStatus.OK)
   async handleConfirmPassword(
     @Body() confirmPasswordDto: ConfirmPasswordDto,
   ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
     return this.authenticationService.handleConfirmPassword(confirmPasswordDto);
-  }
-
-  @Post('admin/confirm-password')
-  @HttpCode(HttpStatus.OK)
-  async handleConfirmAdminPassword(
-    @Body() confirmPasswordDto: ConfirmPasswordDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    return this.authenticationService.handleConfirmAdminPassword(
-      confirmPasswordDto,
-    );
   }
 
   @Post('resend-confirmation-code')
@@ -116,27 +73,9 @@ export class AuthenticationController {
     );
   }
 
-  @Post('admin/resend-confirmation-code')
-  @HttpCode(HttpStatus.OK)
-  async handleResendAdminConfirmationCode(
-    @Body() resendConfirmationCode: ResendConfirmationCodeDto,
-  ): Promise<OneSerializedResponseDto<ISuccessfulOperationResponse>> {
-    return this.authenticationService.handleResendAdminConfirmationCode(
-      resendConfirmationCode,
-    );
-  }
-
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async handleRefreshSession(
-    @Body() refreshSessionDto: RefreshSessionDto,
-  ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
-    return this.authenticationService.handleRefreshSession(refreshSessionDto);
-  }
-
-  @Post('admin/refresh')
-  @HttpCode(HttpStatus.OK)
-  async handleRefreshAdminSession(
     @Body() refreshSessionDto: RefreshSessionDto,
   ): Promise<OneSerializedResponseDto<IRefreshSessionResponse>> {
     return this.authenticationService.handleRefreshSession(refreshSessionDto);

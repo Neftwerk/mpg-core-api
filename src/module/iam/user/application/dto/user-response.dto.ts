@@ -22,6 +22,15 @@ export class UserResponseDto {
   roles: string[];
 
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  surname: string;
+
+  @ApiPropertyOptional()
+  biography?: string;
+
+  @ApiProperty()
   createdAt: string;
 
   @ApiProperty()

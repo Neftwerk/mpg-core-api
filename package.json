@@ -17,7 +17,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --max-warnings=0",
     "test": "cross-env NODE_ENV=automated_tests jest",
     "test:watch": "cross-env NODE_ENV=automated_tests jest --watch",
-    "test:cov": "cross-env NODE_ENV=automated_tests jest --coverage --no-cache --runInBand",
+    "test:cov": "cross-env NODE_ENV=automated_tests jest --coverage --no-cache",
     "test:debug": "cross-env NODE_ENV=automated_tests node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
     "schema:drop": "cross-env NODE_ENV=development npm run typeorm -- schema:drop -d ./src/config/orm.config.ts",
@@ -30,7 +30,8 @@
     "prepare": "husky install",
     "generate:crud": "yo generators/app/crud --force",
     "dev:prepare": "cross-env ./data/scripts/create_default_env.sh",
-    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject ./dist && npx sentry-cli sourcemaps upload ./dist"
+    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject ./dist && npx sentry-cli sourcemaps upload ./dist",
+    "prestart:prod": "run-s setup:env migration:run"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -59,6 +60,7 @@
     "jwks-rsa": "^3.1.0",
     "mysql2": "^3.6.5",
     "passport-jwt": "^4.0.1",
+    "pg": "^8.13.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "stripe": "^16.11.0",
