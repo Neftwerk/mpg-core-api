@@ -55,6 +55,8 @@ export class StellarTransactionAdapter {
   }
 
   buildAsset(assetCode: string, assetIssuer?: string): Asset {
+    console.log('assetCode', assetCode);
+    console.log('assetIssuer', assetIssuer);
     return assetCode === ASSET_CODE.XLM
       ? Asset.native()
       : new Asset(assetCode, assetIssuer);
