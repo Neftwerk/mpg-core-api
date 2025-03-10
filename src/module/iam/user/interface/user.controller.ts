@@ -1,4 +1,17 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { ChangeTrustRequestDto } from '@module/account/application/dto/change-trust-request.dto';
+import { CreateWalletRequestDto } from '@module/account/application/dto/create-wallet-request-dto';
+import { XdrResponseDto } from '@module/account/application/dto/xdr.response.dto';
+import { AccountService } from '@module/account/application/service/account.service';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { ManySerializedResponseDto } from '@common/base/application/dto/many-serialized-response.dto';
@@ -25,6 +38,7 @@ import { USER_ENTITY_NAME } from '@iam/user/domain/user.name';
 export class UserController {
   constructor(
     private readonly userService: UserService,
+    private readonly accountService: AccountService,
     private readonly userMapper: UserMapper,
     private readonly userResponseAdapter: UserResponseAdapter,
   ) {}
@@ -53,5 +67,34 @@ export class UserController {
     return this.userResponseAdapter.oneEntityResponse(
       this.userMapper.fromUserToUserResponseDto(user),
     );
+  }
+
+  @Patch('me/wallet')
+  @Policies(ReadUserPolicyHandler)
+  async addWalletToUser(
+    @Body() { masterKey }: CreateWalletRequestDto,
+    @CurrentUser() { externalId }: User,
+  ): Promise<OneSerializedResponseDto<UserResponseDto>> {
+    return this.userService.addWalletToUser(externalId, masterKey);
+  }
+
+  @Post('create-wallet')
+  @Policies(ReadUserPolicyHandler)
+  @HttpCode(HttpStatus.OK)
+  async createAccount(
+    @Body() { masterKey: createdMasterKey }: CreateWalletRequestDto,
+    @CurrentUser() { masterKey }: User,
+  ): Promise<OneSerializedResponseDto<XdrResponseDto>> {
+    return this.accountService.handleCreateAccount(createdMasterKey, masterKey);
+  }
+
+  @Post('wallet/trustline')
+  @Policies(ReadUserPolicyHandler)
+  @HttpCode(HttpStatus.OK)
+  async buildWalletTrustline(
+    @Body() { asset }: ChangeTrustRequestDto,
+    @CurrentUser() { masterKey }: User,
+  ): Promise<OneSerializedResponseDto<XdrResponseDto>> {
+    return this.accountService.buildTrustlines(asset, masterKey);
   }
 }
