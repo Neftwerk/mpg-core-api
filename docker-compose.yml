@@ -13,3 +13,9 @@ services:
       - '${DB_PORT}:5432'
     volumes:
       - ./data/postgresql/:/var/lib/postgresql
+  stellar:
+    image: stellar/quickstart:soroban-dev
+    container_name: mpg-stellar
+    command: --local
+    ports:
+      - '8000:8000'
