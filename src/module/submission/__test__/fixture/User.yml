@@ -1,0 +1,42 @@
+entity: User
+items:
+  admin-user:
+    username: 'admin@test.com'
+    externalId: '00000000-0000-0000-0000-00000000000X'
+    roles: admin
+    isVerified: true
+    name: 'Admin'
+    surname: 'User'
+    biography: 'Admin user'
+  user1:
+    username: 'user1@test.com'
+    externalId: '00000000-0000-0000-0000-000000000001'
+    roles: regular
+    isVerified: true
+    name: 'User'
+    surname: 'One'
+    biography: 'User one'
+    masterKey: 'GBE755LOEOIEFVSOC3USBQDV5YES67757ADXHBLLJWYHNFZLEYP2FGHQ'
+  user2:
+    username: 'user2@test.com'
+    externalId: '00000000-0000-0000-0000-000000000002'
+    roles: regular
+    isVerified: true
+    name: 'User'
+    surname: 'Two'
+  user3:
+    username: 'user3@test.com'
+    externalId: '00000000-0000-0000-0000-000000000003'
+    roles: regular
+    isVerified: true
+    name: 'User'
+    surname: 'Three'
+    masterKey: 'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI'
+  user{4..23}:
+    username: '{{internet.email}}'
+    externalId: '{{string.uuid}}'
+    roles: regular
+    isVerified: true
+    name: '{{person.firstName}}'
+    surname: '{{person.lastName}}'
+    biography: '{{lorem.paragraph}}'
