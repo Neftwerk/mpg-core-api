@@ -30,6 +30,7 @@ module.exports = {
   // Keep these mappings synchronized with the ones in tsconfig.json as you add new modules
   moduleNameMapper: {
     '^@data/(.*)$': '<rootDir>/../data/$1',
+    '^@module/(.*)$': '<rootDir>/module/$1',
     '^@common/(.*)$': '<rootDir>/common/$1',
     '^@config/(.*)$': '<rootDir>/config/$1',
     '^@book/(.*)$': '<rootDir>/module/book/$1',
