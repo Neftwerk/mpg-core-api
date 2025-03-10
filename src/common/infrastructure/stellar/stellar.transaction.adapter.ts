@@ -5,9 +5,14 @@ import {
   Asset,
   Horizon,
   Keypair,
+  Memo,
+  MemoHash,
+  MemoNone,
   TransactionBuilder,
   xdr,
 } from '@stellar/stellar-sdk';
+
+import { IAddSignature } from '@common/infrastructure/stellar/interface/IAddSignature.interface';
 
 @Injectable()
 export class StellarTransactionAdapter {
@@ -27,6 +32,7 @@ export class StellarTransactionAdapter {
   async buildTransaction(
     publicKey: string,
     operations: string[],
+    memo?: string,
   ): Promise<string> {
     const sourceAccount = await this.stellarServer.loadAccount(publicKey);
 
@@ -40,6 +46,12 @@ export class StellarTransactionAdapter {
     for (const operationXdr of operations) {
       const operation = xdr.Operation.fromXDR(operationXdr, 'base64');
       transaction.addOperation(operation);
+
+      if (memo) {
+        transaction.addMemo(new Memo(MemoHash, memo));
+      } else {
+        transaction.addMemo(new Memo(MemoNone));
+      }
     }
     return transaction.build().toXDR();
   }
@@ -57,6 +69,19 @@ export class StellarTransactionAdapter {
     );
 
     transaction.sign(keypair);
+    return transaction.toXDR();
+  }
+
+  addSignatures(signatures: IAddSignature[], transactionXdr: string): string {
+    const transaction = TransactionBuilder.fromXDR(
+      transactionXdr,
+      this.networkPassphrase,
+    );
+
+    signatures.forEach(({ signature, publicKey }) => {
+      transaction.addSignature(publicKey, signature);
+    });
+
     return transaction.toXDR();
   }
 
