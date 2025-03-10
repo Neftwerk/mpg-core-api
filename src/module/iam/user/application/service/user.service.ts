@@ -12,6 +12,7 @@ import {
   USER_REPOSITORY_KEY,
 } from '@iam/user/application/repository/user.repository.interface';
 import { User } from '@iam/user/domain/user.entity';
+import { UserNotFoundException } from '@iam/user/infrastructure/database/exception/user-not-found.exception';
 
 @Injectable()
 export class UserService {
@@ -34,5 +35,21 @@ export class UserService {
     });
 
     return this.userResponseAdapter.manyEntitiesResponse(collectionDto);
+  }
+
+  async addWalletToUser(userExternalId: string, masterKey: string) {
+    const user = await this.userRepository.getOneByExternalId(userExternalId);
+    if (!user) {
+      throw new UserNotFoundException({
+        message: `User with externalId ${userExternalId} not found`,
+      });
+    }
+    const updatedUser = await this.userRepository.updateOneOrFail(user.id, {
+      masterKey,
+    });
+
+    return this.userResponseAdapter.oneEntityResponse<UserResponseDto>(
+      this.userMapper.fromUserToUserResponseDto(updatedUser),
+    );
   }
 }
