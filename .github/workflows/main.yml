@@ -25,6 +25,8 @@ jobs:
       COGNITO_ENDPOINT: http://localhost:9229 # Mocked, can be any value that complies with the amazon-cognito-identity-js library
       BASE_APP_URL: http://localhost:9229/api/v1 # Mocked, can be any value but it must contain /api/v1
       AUTH_ALLOWED_EMAIL_DOMAINS: ${{ secrets.AUTH_ALLOWED_EMAIL_DOMAINS }}
+      STELLAR_LOCAL_URL: http://localhost:8000
+      STELLAR_LOCAL_NETWORK_PASSPHRASE: Standalone Network ; February 2017
 
     strategy:
       matrix:
@@ -41,6 +43,26 @@ jobs:
 
       - name: NPM or Yarn install with caching
         uses: bahmutov/npm-install@v1.6.0
+
+      - name: Start Stellar service
+        run: |
+          docker run -d \
+            --name stellar \
+            -p 8000:8000 \
+            stellar/quickstart:soroban-dev \
+            --local --enable-soroban-rpc
+
+      - name: Wait for Stellar to be ready
+        run: |
+          echo "Waiting for Stellar to start..."
+          for i in {1..30}; do
+            if nc -z localhost 8000; then
+              echo "Stellar is up!"
+              break
+            fi
+            echo "Waiting for Stellar..."
+            sleep 2
+          done
 
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
