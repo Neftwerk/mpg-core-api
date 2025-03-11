@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Asset, Horizon, Keypair, Operation } from '@stellar/stellar-sdk';
 
+import { STELLAR_OPERATION_SORT_TYPE } from '@common/base/application/enum/stellar-operation-sort-type.enum';
+
 @Injectable()
 export class StellarAccountAdapter {
   private readonly stellarServer: Horizon.Server;
-  private readonly STROOPS_PER_LUMEN = 10000000;
+  private readonly STROOPS_PER_LUMEN = 10_000_000;
   private readonly MINIMUM_BALANCE_MULTIPLIER = 2;
 
   constructor(private readonly environmentConfig: ConfigService) {
@@ -25,7 +27,7 @@ export class StellarAccountAdapter {
 
   async getOperations(
     publicKey: string,
-    order: 'asc' | 'desc',
+    order: STELLAR_OPERATION_SORT_TYPE,
   ): Promise<Horizon.ServerApi.OperationRecord[]> {
     const { records } = await this.stellarServer
       .operations()
@@ -70,7 +72,7 @@ export class StellarAccountAdapter {
     }).toXDR('base64');
   }
 
-  setAccountWeights(
+  setAccountSettings(
     masterWeight: number,
     lowThreshold: number,
     medThreshold: number,
