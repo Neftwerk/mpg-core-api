@@ -51,7 +51,7 @@ export class UserController {
     @Query('sort') sort: UserSortQueryParamsDto,
     @Query('fields') fields: UserFieldsQueryParamsDto,
   ): Promise<ManySerializedResponseDto<UserResponseDto>> {
-    return this.userService.getAll({
+    return await this.userService.getAll({
       page,
       filter,
       sort,
@@ -64,7 +64,7 @@ export class UserController {
   async getMe(
     @CurrentUser() user: User,
   ): Promise<OneSerializedResponseDto<UserResponseDto>> {
-    return this.userResponseAdapter.oneEntityResponse(
+    return await this.userResponseAdapter.oneEntityResponse(
       this.userMapper.fromUserToUserResponseDto(user),
     );
   }
@@ -75,7 +75,7 @@ export class UserController {
     @Body() { masterKey }: CreateWalletRequestDto,
     @CurrentUser() { externalId }: User,
   ): Promise<OneSerializedResponseDto<UserResponseDto>> {
-    return this.userService.addWalletToUser(externalId, masterKey);
+    return await this.userService.addWalletToUser(externalId, masterKey);
   }
 
   @Post('create-wallet')
@@ -85,7 +85,10 @@ export class UserController {
     @Body() { masterKey: createdMasterKey }: CreateWalletRequestDto,
     @CurrentUser() { masterKey }: User,
   ): Promise<OneSerializedResponseDto<XdrResponseDto>> {
-    return this.accountService.handleCreateAccount(createdMasterKey, masterKey);
+    return await this.accountService.handleCreateAccount(
+      createdMasterKey,
+      masterKey,
+    );
   }
 
   @Post('wallet/trustline')
@@ -95,6 +98,6 @@ export class UserController {
     @Body() { asset }: ChangeTrustRequestDto,
     @CurrentUser() { masterKey }: User,
   ): Promise<OneSerializedResponseDto<XdrResponseDto>> {
-    return this.accountService.buildTrustlines(asset, masterKey);
+    return await this.accountService.buildTrustlines(asset, masterKey);
   }
 }
