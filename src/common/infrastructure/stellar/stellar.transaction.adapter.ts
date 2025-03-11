@@ -5,9 +5,6 @@ import {
   Asset,
   Horizon,
   Keypair,
-  Memo,
-  MemoHash,
-  MemoNone,
   TransactionBuilder,
   xdr,
 } from '@stellar/stellar-sdk';
@@ -30,7 +27,6 @@ export class StellarTransactionAdapter {
   async buildTransaction(
     publicKey: string,
     operations: string[],
-    memo?: string,
   ): Promise<string> {
     const sourceAccount = await this.stellarServer.loadAccount(publicKey);
 
@@ -44,12 +40,6 @@ export class StellarTransactionAdapter {
     for (const operationXdr of operations) {
       const operation = xdr.Operation.fromXDR(operationXdr, 'base64');
       transaction.addOperation(operation);
-
-      if (memo) {
-        transaction.addMemo(new Memo(MemoHash, memo));
-      } else {
-        transaction.addMemo(new Memo(MemoNone));
-      }
     }
     return transaction.build().toXDR();
   }
