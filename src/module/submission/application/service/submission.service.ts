@@ -25,7 +25,7 @@ export class SubmissionService implements ISubmissionService {
       const { hash, successful } =
         await this.stellarTransactionAdapter.submitTransaction(xdr);
 
-      return this.submissionResponseAdapter.oneEntityResponseSubmission<SubmitTransactionResponseDto>(
+      return this.submissionResponseAdapter.oneEntityResponseStellar<SubmitTransactionResponseDto>(
         SUBMISSION_ENTITY_NAME,
         {
           hash,
