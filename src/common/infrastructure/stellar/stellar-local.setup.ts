@@ -1,5 +1,6 @@
 import {
   Asset,
+  BASE_FEE,
   Horizon,
   Keypair,
   Operation,
@@ -31,7 +32,7 @@ export const generateXdr = async () => {
   const accountInfo = await server.loadAccount(account.publicKey());
 
   const transaction = new TransactionBuilder(accountInfo, {
-    fee: '100',
+    fee: BASE_FEE,
     networkPassphrase: process.env.STELLAR_LOCAL_NETWORK_PASSPHRASE,
   })
     .addOperation(
