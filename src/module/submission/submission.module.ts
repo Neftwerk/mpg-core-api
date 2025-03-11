@@ -8,9 +8,10 @@ import { StellarModule } from '@/common/infrastructure/stellar/stellar.module';
 
 import { SubmissionService } from './application/service/submission.service';
 import { SubmissionController } from './controllers/submission.controller';
+import { SUBMISSION_SERVICE } from './domain/submission-service.constant';
 
 const submissionServiceProvider: Provider = {
-  provide: 'SUBMISSION_SERVICE',
+  provide: SUBMISSION_SERVICE,
   useClass: SubmissionService,
 };
 
