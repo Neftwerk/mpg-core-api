@@ -2,9 +2,9 @@ name: CI workflow
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['*']
+    branches: ["*"]
 
 jobs:
   test:
@@ -34,6 +34,7 @@ jobs:
       STELLAR_ORGANIZATION_PUBLIC_KEY_SPONSOR_TRUSTLINES: ${{ secrets.STELLAR_ORGANIZATION_PUBLIC_KEY_SPONSOR_TRUSTLINES }}
       STELLAR_ORGANIZATION_SECRET_KEY_SPONSOR_TRUSTLINES: ${{ secrets.STELLAR_ORGANIZATION_SECRET_KEY_SPONSOR_TRUSTLINES }}
       STELLAR_INITIAL_XLM_BALANCE_OF_SPONSORED_ACCOUNT: 3
+      USDC_ASSET_ISSUER: ${{ secrets.USDC_ASSET_ISSUER }}
 
     strategy:
       matrix:
