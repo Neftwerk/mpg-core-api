@@ -10,6 +10,7 @@ export class User extends Base {
   name: string;
   surname: string;
   biography?: string;
+  masterKey?: string;
 
   constructor(
     username: string,
@@ -23,6 +24,7 @@ export class User extends Base {
     createdAt?: string,
     updatedAt?: string,
     deletedAt?: string,
+    masterKey?: string,
   ) {
     super(id, createdAt, updatedAt, deletedAt);
     this.username = username;
@@ -32,5 +34,6 @@ export class User extends Base {
     this.name = name;
     this.surname = surname;
     this.biography = biography;
+    this.masterKey = masterKey;
   }
 }

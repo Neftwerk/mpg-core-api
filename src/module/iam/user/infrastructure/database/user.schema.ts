@@ -36,5 +36,10 @@ export const UserSchema = new EntitySchema<User>({
       nullable: true,
       default: null,
     },
+    masterKey: {
+      type: String,
+      nullable: true,
+      default: null,
+    },
   }),
 });

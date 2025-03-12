@@ -14,6 +14,7 @@ export class UserMapper {
     userResponseDto.roles = user.roles;
     userResponseDto.name = user.name;
     userResponseDto.surname = user.surname;
+    userResponseDto.masterKey = user.masterKey;
     userResponseDto.biography = user.biography;
     userResponseDto.createdAt = user.createdAt;
     userResponseDto.updatedAt = user.updatedAt;

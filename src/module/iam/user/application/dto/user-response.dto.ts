@@ -27,6 +27,9 @@ export class UserResponseDto {
   @ApiProperty()
   surname: string;
 
+  @ApiProperty()
+  masterKey: string;
+
   @ApiPropertyOptional()
   biography?: string;
 
