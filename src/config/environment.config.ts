@@ -33,10 +33,6 @@ export const environmentConfig = () => ({
       process.env.STELLAR_ORGANIZATION_PUBLIC_KEY_SPONSOR_ACCOUNT,
     organizationSecretKeySponsorAccount:
       process.env.STELLAR_ORGANIZATION_SECRET_KEY_SPONSOR_ACCOUNT,
-    organizationPublicKeySponsorTrustlines:
-      process.env.STELLAR_ORGANIZATION_PUBLIC_KEY_SPONSOR_TRUSTLINES,
-    organizationSecretKeySponsorTrustlines:
-      process.env.STELLAR_ORGANIZATION_SECRET_KEY_SPONSOR_TRUSTLINES,
     initialXlmBalanceOfSponsoredAccount:
       process.env.STELLAR_INITIAL_XLM_BALANCE_OF_SPONSORED_ACCOUNT,
     usdcAssetCode: process.env.USDC_ASSET_CODE,
