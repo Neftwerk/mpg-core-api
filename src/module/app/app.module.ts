@@ -14,6 +14,7 @@ import { AppService } from '@/module/app/application/service/app.service';
 import { ResponseSerializerService } from '@/module/app/application/service/response-serializer.service';
 import { HealthController } from '@/module/health/interface/health.controller';
 import { PaymentModule } from '@/module/payment/payment.module';
+import { RecoveryModule } from '@/module/recovery/recovery.module';
 import { SubmissionModule } from '@/module/submission/submission.module';
 
 @Global()
@@ -36,6 +37,7 @@ import { SubmissionModule } from '@/module/submission/submission.module';
     DiscoveryModule,
     PaymentModule,
     SubmissionModule,
+    RecoveryModule,
   ],
   providers: [AppService, ResponseSerializerService],
   exports: [AppService, ResponseSerializerService],
