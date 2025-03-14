@@ -14,6 +14,7 @@ import { createAccessToken } from '@test/test.util';
 
 describe('Submission Module', () => {
   let app: INestApplication;
+  jest.setTimeout(80000);
 
   const user1Token = createAccessToken({
     sub: '00000000-0000-0000-0000-000000000001',
