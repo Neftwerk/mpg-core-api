@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
+import { AccountRecoveryModule } from '@common/infrastructure/recovery/recovery.account.module';
 import { StellarModule } from '@common/infrastructure/stellar/stellar.module';
 
 @Module({
-  providers: [StellarModule],
-  exports: [StellarModule],
+  imports: [StellarModule, AccountRecoveryModule],
+  exports: [StellarModule, AccountRecoveryModule],
 })
 export class CommonModule {}
