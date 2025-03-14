@@ -42,4 +42,8 @@ export const environmentConfig = () => ({
     usdcAssetCode: process.env.USDC_ASSET_CODE,
     usdcAssetIssuer: process.env.USDC_ASSET_ISSUER,
   },
+  accountRecovery: {
+    planetPayRecoveryNode: process.env.ACCOUNT_RECOVERY_PLANET_PAY_NODE,
+    biggerRecoveryNode: process.env.ACCOUNT_RECOVERY_BIGGER_NODE,
+  },
 });
