@@ -1,0 +1,12 @@
+entity: Signer
+items:
+  signer1:
+    publicKey: 'GB3MCW2C4G5J7Z5VDLGNWOTKF57XWDQFPAQJIVGBWCZC3DJRQISDII3C'
+    domain: 'recovery.planetpay.test.io'
+    uuid: '00000000-0000-0000-0000-000000000001'
+    user: '@user1'
+  signer2:
+    publicKey: 'GDQY6F2JNILD5FOAI5ZQSFZGWM45QVKGBC5L5DGXO7QGB6X3DZ6AZ5QY'
+    domain: 'recovery.bigger.test.systems'
+    uuid: '00000000-0000-0000-0000-000000000002'
+    user: '@user1'
