@@ -13,19 +13,21 @@ const sourceAccount = {
   secret: 'SC5O7VZUXDJ6JBDSZ74DSERXL7W3Y5LTOAMRF7RQRL3TAGAPS7LUVG3L',
 };
 
+const STELLAR_LOCAL_URL = process.env.STELLAR_LOCAL_URL;
+
 export const createAccount = async () => {
   const account = Keypair.random();
 
   const publicKey = account.publicKey();
 
-  await axios.get(`http://localhost:8000/friendbot?addr=${publicKey}`);
+  await axios.get(`${STELLAR_LOCAL_URL}/friendbot?addr=${publicKey}`);
 
   return account;
 };
 
 export const generateXdr = async () => {
   const account = Keypair.fromSecret(sourceAccount.secret);
-  const server = new Horizon.Server('http://localhost:8000', {
+  const server = new Horizon.Server(STELLAR_LOCAL_URL, {
     allowHttp: true,
   });
 
@@ -51,7 +53,7 @@ export const generateXdr = async () => {
 export const getSignatureFromTransaction = async (
   address: Keypair,
 ): Promise<{ transaction: string; signature: string }> => {
-  const server = new Horizon.Server('http://localhost:8000', {
+  const server = new Horizon.Server(STELLAR_LOCAL_URL, {
     allowHttp: true,
   });
 
@@ -84,7 +86,7 @@ export const setAccountSigners = async (
   address: Keypair,
   signers: { publicKey: string; weight: number }[],
 ) => {
-  const server = new Horizon.Server('http://localhost:8000', {
+  const server = new Horizon.Server(STELLAR_LOCAL_URL, {
     allowHttp: true,
   });
 
