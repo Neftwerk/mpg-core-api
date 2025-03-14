@@ -1,4 +1,4 @@
-import { IRegisteredAccountResponse } from '@module/recovery/application/interface/IRegisteredAccountResponse.interface';
+import { IRegisteredAccountResponse } from '@module/recovery/application/interface/registered-sccount-response.interface';
 
 export interface IRecoveryNode {
   getSep10Challenge(publicKey: string): Promise<string>;

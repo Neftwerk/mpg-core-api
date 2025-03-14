@@ -1,7 +1,7 @@
 import { IDENTITY_ROLE } from '@module/recovery/application/enum/auth-identity-role.enum';
 import { AUTH_METHOD_TYPE } from '@module/recovery/application/enum/auth-method-type.enum';
-import { IIdentity } from '@module/recovery/application/interface/IIdentity.interface';
-import { IRegisteredAccountResponse } from '@module/recovery/application/interface/IRegisteredAccountResponse.interface';
+import { IIdentity } from '@module/recovery/application/interface/identity.interface';
+import { IRegisteredAccountResponse } from '@module/recovery/application/interface/registered-sccount-response.interface';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 
