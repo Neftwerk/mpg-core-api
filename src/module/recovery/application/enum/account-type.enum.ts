@@ -1,0 +1,5 @@
+export enum ACCOUNT_TYPE {
+  DEVICE = 'DEVICE',
+  SERVER = 'SERVER',
+  UNUSED = 'UNUSED',
+}
