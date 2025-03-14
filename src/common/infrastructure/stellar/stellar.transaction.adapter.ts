@@ -9,6 +9,8 @@ import {
   xdr,
 } from '@stellar/stellar-sdk';
 
+import { IAddSignature } from '@common/infrastructure/stellar/interface/add-signature.interface';
+
 @Injectable()
 export class StellarTransactionAdapter {
   private readonly stellarServer: Horizon.Server;
@@ -69,5 +71,18 @@ export class StellarTransactionAdapter {
     );
 
     return await this.stellarServer.submitTransaction(transaction);
+  }
+
+  addSignatures(signatures: IAddSignature[], transactionXdr: string): string {
+    const transaction = TransactionBuilder.fromXDR(
+      transactionXdr,
+      this.networkPassphrase,
+    );
+
+    signatures.forEach(({ signature, publicKey }) => {
+      transaction.addSignature(publicKey, signature);
+    });
+
+    return transaction.toXDR();
   }
 }
