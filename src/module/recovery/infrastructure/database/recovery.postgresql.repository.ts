@@ -17,10 +17,8 @@ export class RecoveryPostgreSqlRepository implements IRecoveryRepository {
   }
 
   async getByUserExternalId(externalId: string): Promise<Signer[]> {
-    const signer = await this.repository.find({
+    return await this.repository.find({
       where: { user: { externalId } },
     });
-
-    return signer;
   }
 }
