@@ -7,6 +7,9 @@ import {
   TransactionBuilder,
 } from '@stellar/stellar-sdk';
 import axios from 'axios';
+import { config } from 'dotenv';
+
+config();
 
 const sourceAccount = {
   public: 'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI',
