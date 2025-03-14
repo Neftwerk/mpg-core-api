@@ -6,7 +6,7 @@ export class AccountResponseAdapter extends BaseResponseAdapter {
   constructor(serializerService: ResponseSerializerService) {
     super(serializerService);
   }
-  public oneEntityResponseStellar<ResponseDto extends object>(
+  public oneEntityResponseDto<ResponseDto extends object>(
     entityName: string,
     resource: ResponseDto,
     relationshipsKeys: string[] = [],

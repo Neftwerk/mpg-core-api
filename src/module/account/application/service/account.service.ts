@@ -4,6 +4,7 @@ import { XdrResponseDto } from '@module/account/application/dto/xdr.response.dto
 import { BuildTrustlinesException } from '@module/account/application/exception/build-trustlines.exception';
 import { CreateAccountException } from '@module/account/application/exception/create-account.exception';
 import { UserAlreadyHasMasterKeyException } from '@module/account/application/exception/user-already-has-master-key.exception';
+import { IAccountSigner } from '@module/account/application/interface/account-signer.interface';
 import { IAccountService } from '@module/account/application/interface/account.service.interface';
 import { ASSET_CODE } from '@module/account/domain/asset-code.enum';
 import { XDR_ENTITY_NAME } from '@module/account/domain/xdr.name';
@@ -60,7 +61,7 @@ export class AccountService implements IAccountService {
           trustlineOperation,
         ]);
 
-      return this.accountResponseAdapter.oneEntityResponseStellar<XdrResponseDto>(
+      return this.accountResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
         XDR_ENTITY_NAME,
         { xdr: trustlineTransaction },
       );
@@ -81,7 +82,7 @@ export class AccountService implements IAccountService {
       const sponsorSignedTransaction =
         await this.createSponsoredAccountTransaction(masterKey);
 
-      return this.accountResponseAdapter.oneEntityResponseStellar<XdrResponseDto>(
+      return this.accountResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
         XDR_ENTITY_NAME,
         { xdr: sponsorSignedTransaction },
       );
@@ -138,5 +139,31 @@ export class AccountService implements IAccountService {
       sponsorKeyPair,
       createAccountTransaction,
     );
+  }
+
+  async getDeviceKeyFromAccount(
+    masterKey: string,
+    weight: number,
+  ): Promise<string> {
+    const signers = await this.getAccountSigners(masterKey);
+    const maxSigners = await this.filterSignersByWeight(signers, weight);
+    return maxSigners[0].key;
+  }
+
+  private async getAccountSigners(
+    masterKey: string,
+  ): Promise<IAccountSigner[]> {
+    const account = await this.stellarAccountAdapter.getAccount(masterKey);
+    return account.signers.map(({ key, weight }) => ({
+      key,
+      weight,
+    }));
+  }
+
+  private async filterSignersByWeight(
+    signers: IAccountSigner[],
+    weight: number,
+  ): Promise<IAccountSigner[]> {
+    return signers.filter((signer) => signer.weight === weight);
   }
 }
