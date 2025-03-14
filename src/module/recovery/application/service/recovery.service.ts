@@ -58,7 +58,7 @@ export class RecoveryService implements IRecoveryService {
     const challenges =
       await this.sep10AuthService.generateSep10Challenge(publicKey);
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<GenerateRecoveryChallengeResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<GenerateRecoveryChallengeResponseDto>(
       RecoveryResponseType.RECOVERY_CHALLENGE,
       { challenges },
     );
@@ -72,7 +72,7 @@ export class RecoveryService implements IRecoveryService {
     const tokens =
       await this.sep10AuthService.generateSep10Token(signedChallenges);
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<GenerateRecoveryTokenResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<GenerateRecoveryTokenResponseDto>(
       RecoveryResponseType.RECOVERY_TOKEN,
       { tokens },
     );
@@ -107,7 +107,7 @@ export class RecoveryService implements IRecoveryService {
       [setWeightsOperation, addDeviceKeyOperation, ...addSignerOperations],
     );
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<ConfigureAccountRecoveryResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<ConfigureAccountRecoveryResponseDto>(
       RecoveryResponseType.CONFIGURE_RECOVERY,
       { xdr: transaction, signers },
     );
@@ -128,7 +128,7 @@ export class RecoveryService implements IRecoveryService {
     const signerResponse =
       this.signerResponseMapper.toSignerResponse(savedSigners);
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<AddSignerResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<AddSignerResponseDto>(
       RecoveryResponseType.ADD_SIGNERS,
       signerResponse,
     );
@@ -147,7 +147,7 @@ export class RecoveryService implements IRecoveryService {
       servers[domain] = AUTH_METHOD_TYPE.EMAIL;
     }
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<SendVerificationCodeResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<SendVerificationCodeResponseDto>(
       RecoveryResponseType.SEND_VERIFICATION_CODE,
       { servers },
     );
@@ -175,7 +175,7 @@ export class RecoveryService implements IRecoveryService {
       }),
     );
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<AuthenticateWithVerificationCodeResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<AuthenticateWithVerificationCodeResponseDto>(
       RecoveryResponseType.AUTHENTICATE_WITH_VERIFICATION_CODE,
       { externalAuthTokens: Object.assign({}, ...externalAuthTokens) },
     );
@@ -222,7 +222,7 @@ export class RecoveryService implements IRecoveryService {
       [removeOldDeviceKeyOperation, addNewDeviceKeyOperation],
     );
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<XdrResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
       RecoveryResponseType.RECOVER_ACCOUNT,
       { xdr: transaction },
     );
@@ -259,7 +259,7 @@ export class RecoveryService implements IRecoveryService {
       transaction,
     );
 
-    return this.recoveryResponseAdapter.oneEntityResponseRecovery<XdrResponseDto>(
+    return this.recoveryResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
       RecoveryResponseType.ADD_SIGNATURES,
       { xdr: signedTransaction },
     );

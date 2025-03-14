@@ -61,7 +61,7 @@ export class AccountService implements IAccountService {
           trustlineOperation,
         ]);
 
-      return this.accountResponseAdapter.oneEntityResponseStellar<XdrResponseDto>(
+      return this.accountResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
         XDR_ENTITY_NAME,
         { xdr: trustlineTransaction },
       );
@@ -82,7 +82,7 @@ export class AccountService implements IAccountService {
       const sponsorSignedTransaction =
         await this.createSponsoredAccountTransaction(masterKey);
 
-      return this.accountResponseAdapter.oneEntityResponseStellar<XdrResponseDto>(
+      return this.accountResponseAdapter.oneEntityResponseDto<XdrResponseDto>(
         XDR_ENTITY_NAME,
         { xdr: sponsorSignedTransaction },
       );
