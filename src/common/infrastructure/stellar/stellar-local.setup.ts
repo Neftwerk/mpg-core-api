@@ -36,11 +36,8 @@ export const generateXdr = async () => {
     networkPassphrase: process.env.STELLAR_LOCAL_NETWORK_PASSPHRASE,
   })
     .addOperation(
-      Operation.payment({
-        destination: account.publicKey(),
-        amount: '1',
-        asset: Asset.native(),
-        source: account.publicKey(),
+      Operation.bumpSequence({
+        bumpTo: accountInfo.sequence + 1,
       }),
     )
     .setTimeout(30)
