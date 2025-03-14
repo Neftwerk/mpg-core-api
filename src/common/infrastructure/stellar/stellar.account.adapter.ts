@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { Asset, Horizon, Keypair, Operation } from '@stellar/stellar-sdk';
 
 import { STELLAR_OPERATION_SORT_TYPE } from '@common/base/application/enum/stellar-operation-sort-type.enum';
+import { IAddSignerOptions } from '@common/infrastructure/stellar/interface/add-signers-options.interface';
+import { ISetAccountWeightsProps } from '@common/infrastructure/stellar/interface/set-account-weights.interface';
 
 @Injectable()
 export class StellarAccountAdapter {
@@ -25,6 +27,20 @@ export class StellarAccountAdapter {
     return Keypair.fromSecret(secretKey);
   }
 
+  setAccountSettings({
+    lowThreshold,
+    medThreshold,
+    highThreshold,
+    masterWeight,
+  }: ISetAccountWeightsProps): string {
+    return Operation.setOptions({
+      lowThreshold,
+      medThreshold,
+      highThreshold,
+      masterWeight,
+    }).toXDR('base64');
+  }
+
   async getOperations(
     publicKey: string,
     order: STELLAR_OPERATION_SORT_TYPE,
@@ -35,6 +51,10 @@ export class StellarAccountAdapter {
       .order(order)
       .call();
     return records;
+  }
+
+  addAccountSigners(options: IAddSignerOptions): string {
+    return Operation.setOptions(options).toXDR('base64');
   }
 
   createBeginSponsoringFutureReservesOperation(
@@ -69,20 +89,6 @@ export class StellarAccountAdapter {
       destination: publicKey,
       startingBalance,
       source: sponsorPublicKey,
-    }).toXDR('base64');
-  }
-
-  setAccountSettings(
-    masterWeight: number,
-    lowThreshold: number,
-    medThreshold: number,
-    highThreshold: number,
-  ): string {
-    return Operation.setOptions({
-      lowThreshold,
-      medThreshold,
-      highThreshold,
-      masterWeight,
     }).toXDR('base64');
   }
 
