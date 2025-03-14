@@ -22,10 +22,12 @@ import { createAccessToken } from '@test/test.util';
 
 describe('Recovery Module', () => {
   let app: INestApplication;
-  jest.setTimeout(100000);
 
   const user1Token = createAccessToken({
     sub: '00000000-0000-0000-0000-000000000001',
+  });
+  const user2Token = createAccessToken({
+    sub: '00000000-0000-0000-0000-000000000002',
   });
 
   beforeAll(async () => {
@@ -76,7 +78,7 @@ describe('Recovery Module', () => {
   });
 
   describe('GET - /recovery/auth', () => {
-    it('should return recovery challenge', async () => {
+    it('Should return recovery challenge', async () => {
       jest
         .spyOn(BiggerRecoveryNode.prototype, 'getSep10Challenge')
         .mockResolvedValue('mock-challenge-1');
@@ -100,7 +102,17 @@ describe('Recovery Module', () => {
         });
     });
 
-    it('should throw an error if user is not authenticated', async () => {
+    it('Should throw an error if user has no master key or it is invalid', async () => {
+      await request(app.getHttpServer())
+        .get('/api/v1/recovery/auth')
+        .auth(user2Token, { type: 'bearer' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.error.detail).toBe('Invalid public key');
+        });
+    });
+
+    it('Should throw an error if user is not authenticated', async () => {
       await request(app.getHttpServer())
         .get('/api/v1/recovery/auth')
         .expect(HttpStatus.UNAUTHORIZED);
@@ -108,7 +120,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery/auth', () => {
-    it('should generate recovery token', async () => {
+    it('Should generate recovery token', async () => {
       jest
         .spyOn(BiggerRecoveryNode.prototype, 'getSep10Token')
         .mockResolvedValue('mock-token-1');
@@ -138,7 +150,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery/configuration', () => {
-    it('should configure account recovery', async () => {
+    it('Should configure account recovery', async () => {
       jest
         .spyOn(BiggerRecoveryNode.prototype, 'registerAccount')
         .mockResolvedValue({
@@ -193,7 +205,7 @@ describe('Recovery Module', () => {
   });
 
   describe('GET - /recovery/external-auth/verification', () => {
-    it('should send verification code', async () => {
+    it('Should send verification code', async () => {
       jest
         .spyOn(BiggerRecoveryNode.prototype, 'sendExternalAuthCode')
         .mockResolvedValue();
@@ -219,7 +231,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery/external-auth/authentication', () => {
-    it('should authenticate with verification code', async () => {
+    it('Should authenticate with verification code', async () => {
       jest
         .spyOn(BiggerRecoveryNode.prototype, 'authenticateWithExternalAuthCode')
         .mockResolvedValue('mock-auth-token-1');
@@ -254,7 +266,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery/signer', () => {
-    it('should create signers', async () => {
+    it('Should create signers', async () => {
       const signers = {
         'recovery.planetpay.test.io': 'signer-key-1',
         'recovery.bigger.test.systems': 'signer-key-2',
@@ -273,7 +285,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery', () => {
-    it('should recover account', async () => {
+    it('Should recover account', async () => {
       const newDeviceKey =
         'GD7NOYJCL6WVU7IO6DFXRXRNQBRMU2G7KNJ6HMF6G3PMHTIZLPY6PAON';
 
@@ -290,7 +302,7 @@ describe('Recovery Module', () => {
   });
 
   describe('POST - /recovery/signature', () => {
-    it('should add signatures', async () => {
+    it('Should add signatures', async () => {
       const recoveryServerTokens = {
         'recovery.planetpay.test.io': 'mock-token-1',
         'recovery.bigger.test.systems': 'mock-token-2',
